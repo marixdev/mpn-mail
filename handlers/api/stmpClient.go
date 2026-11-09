@@ -7,6 +7,7 @@ import (
 	"net"
 	"net/smtp"
 	"os"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -22,18 +23,24 @@ type SMTPClient struct {
 	mechanism          string // "xoauth2" or "oauthbearer"
 	insecureSkipVerify bool   // if true, skip TLS certificate verification
 	useStartTLS        bool   // true = STARTTLS (port 587); false = implicit TLS (port 465)
+	authUsername       string // SASL login name; defaults to the full email (SetAuthUsername overrides it for bare-handle servers)
 }
+
+// smtpDialTimeout bounds the TCP/TLS connect so a dead or filtered server fails
+// fast instead of hanging the request (previously there was no connect timeout).
+const smtpDialTimeout = 20 * time.Second
 
 // NewSMTPClient creates a new SMTP client using password authentication.
 // useStartTLS controls the connection mode: true → plaintext + STARTTLS
 // (port 587), false → implicit TLS from the start (port 465).
 func NewSMTPClient(server string, port int, email, password string, useStartTLS bool) *SMTPClient {
 	return &SMTPClient{
-		server:      server,
-		port:        port,
-		email:       email,
-		password:    password,
-		useStartTLS: useStartTLS,
+		server:       server,
+		port:         port,
+		email:        email,
+		password:     password,
+		useStartTLS:  useStartTLS,
+		authUsername: email,
 	}
 }
 
@@ -41,13 +48,14 @@ func NewSMTPClient(server string, port int, email, password string, useStartTLS 
 // access token (XOAUTH2 or OAUTHBEARER).
 func NewSMTPClientOAuth(server string, port int, email, token, mechanism string, useStartTLS bool) *SMTPClient {
 	return &SMTPClient{
-		server:      server,
-		port:        port,
-		email:       email,
-		token:       token,
-		mechanism:   mechanism,
-		useOAuth:    true,
-		useStartTLS: useStartTLS,
+		server:       server,
+		port:         port,
+		email:        email,
+		token:        token,
+		mechanism:    mechanism,
+		useOAuth:     true,
+		useStartTLS:  useStartTLS,
+		authUsername: email,
 	}
 }
 
@@ -56,6 +64,12 @@ func NewSMTPClientOAuth(server string, port int, email, token, mechanism string,
 func (c *SMTPClient) SetInsecureSkipVerify(skip bool) {
 	c.insecureSkipVerify = skip
 }
+
+// SetAuthUsername overrides the SASL login name. By default the full email
+// address is sent — what most hosted providers, and a Dovecot configured for
+// full-address logins, expect. Call this with the bare local part only for
+// servers that authenticate the handle without the domain.
+func (c *SMTPClient) SetAuthUsername(u string) { c.authUsername = u }
 
 // SMTPTransport is a snapshot of an SMTPClient's connection parameters, including
 // the authentication secret (password or OAuth token). It lets a caller persist
@@ -123,7 +137,7 @@ func (c *SMTPClient) SendMail(to, subject, body string, opts *MailOptions) error
 		}
 	}
 
-	addr := fmt.Sprintf("%s:%d", c.server, c.port)
+	addr := net.JoinHostPort(c.server, strconv.Itoa(c.port))
 	tlsCfg := &tls.Config{
 		ServerName:         c.server,
 		InsecureSkipVerify: c.insecureSkipVerify, //nolint:gosec // operator-controlled
@@ -133,10 +147,16 @@ func (c *SMTPClient) SendMail(to, subject, body string, opts *MailOptions) error
 	var err error
 
 	if c.useStartTLS {
-		// Plain TCP → STARTTLS upgrade.
-		client, err = smtp.Dial(addr)
+		// Plain TCP (with a connect timeout) → STARTTLS upgrade.
+		conn, derr := net.DialTimeout("tcp", addr, smtpDialTimeout)
+		if derr != nil {
+			return fmt.Errorf("dial failed: %v", derr)
+		}
+		host, _, _ := net.SplitHostPort(addr)
+		client, err = smtp.NewClient(conn, host)
 		if err != nil {
-			return fmt.Errorf("dial failed: %v", err)
+			conn.Close()
+			return fmt.Errorf("smtp client init failed: %v", err)
 		}
 		domain := GetDomainFromEmail(c.email)
 		if err := client.Hello(domain); err != nil {
@@ -148,10 +168,10 @@ func (c *SMTPClient) SendMail(to, subject, body string, opts *MailOptions) error
 			return fmt.Errorf("starttls failed: %v", err)
 		}
 	} else {
-		// Implicit TLS (port 465).
-		conn, err := tls.Dial("tcp", addr, tlsCfg)
-		if err != nil {
-			return fmt.Errorf("tls dial failed: %v", err)
+		// Implicit TLS (port 465) with a connect timeout.
+		conn, derr := tls.DialWithDialer(&net.Dialer{Timeout: smtpDialTimeout}, "tcp", addr, tlsCfg)
+		if derr != nil {
+			return fmt.Errorf("tls dial failed: %v", derr)
 		}
 		host, _, _ := net.SplitHostPort(addr)
 		client, err = smtp.NewClient(conn, host)
@@ -164,6 +184,10 @@ func (c *SMTPClient) SendMail(to, subject, body string, opts *MailOptions) error
 
 	domain := GetDomainFromEmail(c.email)
 	username := GetUsernameFromEmail(c.email)
+	authUser := c.authUsername
+	if authUser == "" {
+		authUser = c.email
+	}
 
 	// Authenticate.
 	var auth smtp.Auth
@@ -175,7 +199,7 @@ func (c *SMTPClient) SendMail(to, subject, body string, opts *MailOptions) error
 			auth = NewSMTPXoauth2(c.email, c.token)
 		}
 	} else {
-		auth = smtp.PlainAuth("", username, c.password, c.server)
+		auth = smtp.PlainAuth("", authUser, c.password, c.server)
 	}
 	if err = client.Auth(auth); err != nil {
 		return fmt.Errorf("auth failed: %v", err)
@@ -247,7 +271,7 @@ func (c *SMTPClient) SendMail(to, subject, body string, opts *MailOptions) error
 // responsible for constructing the full message including all headers and body.
 // allRcpts is the union of To, CC, and BCC addresses to use as RCPT TO.
 func (c *SMTPClient) SendRawMessage(allRcpts []string, rawMessage []byte) error {
-	addr := fmt.Sprintf("%s:%d", c.server, c.port)
+	addr := net.JoinHostPort(c.server, strconv.Itoa(c.port))
 	tlsCfg := &tls.Config{
 		ServerName:         c.server,
 		InsecureSkipVerify: c.insecureSkipVerify, //nolint:gosec // operator-controlled
@@ -257,9 +281,15 @@ func (c *SMTPClient) SendRawMessage(allRcpts []string, rawMessage []byte) error 
 	var err error
 
 	if c.useStartTLS {
-		smtpClient, err = smtp.Dial(addr)
+		conn, derr := net.DialTimeout("tcp", addr, smtpDialTimeout)
+		if derr != nil {
+			return fmt.Errorf("dial failed: %v", derr)
+		}
+		host, _, _ := net.SplitHostPort(addr)
+		smtpClient, err = smtp.NewClient(conn, host)
 		if err != nil {
-			return fmt.Errorf("dial failed: %v", err)
+			conn.Close()
+			return fmt.Errorf("smtp client init failed: %v", err)
 		}
 		domain := GetDomainFromEmail(c.email)
 		if err := smtpClient.Hello(domain); err != nil {
@@ -271,9 +301,9 @@ func (c *SMTPClient) SendRawMessage(allRcpts []string, rawMessage []byte) error 
 			return fmt.Errorf("starttls failed: %v", err)
 		}
 	} else {
-		conn, err := tls.Dial("tcp", addr, tlsCfg)
-		if err != nil {
-			return fmt.Errorf("tls dial failed: %v", err)
+		conn, derr := tls.DialWithDialer(&net.Dialer{Timeout: smtpDialTimeout}, "tcp", addr, tlsCfg)
+		if derr != nil {
+			return fmt.Errorf("tls dial failed: %v", derr)
 		}
 		host, _, _ := net.SplitHostPort(addr)
 		smtpClient, err = smtp.NewClient(conn, host)
@@ -284,7 +314,10 @@ func (c *SMTPClient) SendRawMessage(allRcpts []string, rawMessage []byte) error 
 	}
 	defer smtpClient.Close()
 
-	username := GetUsernameFromEmail(c.email)
+	authUser := c.authUsername
+	if authUser == "" {
+		authUser = c.email
+	}
 	var auth smtp.Auth
 	if c.useOAuth {
 		switch strings.ToLower(c.mechanism) {
@@ -294,7 +327,7 @@ func (c *SMTPClient) SendRawMessage(allRcpts []string, rawMessage []byte) error 
 			auth = NewSMTPXoauth2(c.email, c.token)
 		}
 	} else {
-		auth = smtp.PlainAuth("", username, c.password, c.server)
+		auth = smtp.PlainAuth("", authUser, c.password, c.server)
 	}
 	if err = smtpClient.Auth(auth); err != nil {
 		return fmt.Errorf("auth failed: %v", err)
