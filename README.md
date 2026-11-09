@@ -1,307 +1,66 @@
-<div align="center">
+# mpn-mail
 
-<img src="docs/assets/lilmail-wordmark.png" alt="lilmail" height="56">
+Web mail nhẹ cho [Mini Panel](https://github.com/marixdev/mini-panel) (`mpn`). Một tệp Go chạy tĩnh, không cần cơ sở dữ liệu ngoài, đọc và gửi thư qua IMAP/SMTP của chính máy chủ.
 
-**A lightweight, database-free PIM client — mail + calendar + contacts — in a single Go binary.**
+Đây là bản tùy biến từ [lilmail](https://github.com/vul-os/lilmail) v1.14.0 của vul-os, giữ nguyên giấy phép gốc (xem bên dưới). Mã nguồn lilmail vẫn nằm trong lịch sử git của repo này.
 
-**[MIT OR Apache-2.0](LICENSE-MIT) · [Releases](https://github.com/vul-os/lilmail/releases) · [CI](https://github.com/vul-os/lilmail/actions/workflows/ci.yml)**
+## Khác gì so với lilmail
 
-<br>
+- Giao diện tiếng Việt và tiếng Anh. Mặc định là tiếng Việt, người dùng đổi bằng cookie `lang` hoặc chỉnh `[server] language`. Chuỗi chữ nằm ở `i18n/vi.go` và `i18n/en.go`, template gọi qua `{{T .Lang "khóa"}}`.
+- Logo và favicon của Mini Panel, màu teal khớp với panel (sáng và tối).
+- Đăng nhập SMTP dùng cả địa chỉ email làm tên đăng nhập, giống IMAP. Bản gốc chỉ gửi phần trước `@`, nên hộp thư ảo kiểu `ten@tenmien` bị từ chối. Máy chủ chỉ nhận tên ngắn thì gọi `SetAuthUsername`.
+- Kết nối IMAP và SMTP có thời gian chờ 20 giây, không còn treo khi máy chủ không trả lời. Không đặt thời gian chờ đọc lệnh vì sẽ cắt kết nối IMAP IDLE.
+- Tự thoát khi rảnh và nhận socket từ systemd, để web mail không chiếm RAM lúc không ai dùng.
 
-<img src="docs/screenshots/hero.png" alt="lilmail — a message open in the three-pane reading view" width="900">
+## Cấu hình
 
-</div>
+Chép `config.toml.example` thành `config.toml` ở thư mục chạy. Tệp chỉ được đọc từ thư mục hiện tại, và chương trình chỉ nhận cờ `-version`. Các khóa mpn-mail thêm vào:
 
----
+| Khóa | Mặc định | Ý nghĩa |
+|---|---|---|
+| `[server] language` | `"vi"` | Ngôn ngữ mặc định, `"vi"` hoặc `"en"`. |
+| `[server] idle_exit_seconds` | `0` | Số giây không có yêu cầu hay kết nối SSE nào thì tiến trình tự thoát. `0` là tắt. |
 
-## What is lilmail?
+Với máy chủ thư của Mini Panel (Dovecot xác thực bằng địa chỉ đầy đủ), `[auth] allow_full_email_username = true`.
 
-lilmail is a self-hostable **PIM client** — mail, calendar, and contacts — that
-connects to the **user's own** IMAP/SMTP + CalDAV + CardDAV account and ships as
-**one self-contained Go binary**. The UI is server-rendered HTML (Go templates +
-HTMX + Alpine.js) with every frontend asset embedded via `embed.FS` — no build
-step, no CDN, and no external services to run by default. Drop the binary next to
-a `config.toml` and it runs, comfortably, on 64 MB of RAM.
+## Chạy tiết kiệm RAM với systemd
 
-Log in with a classic username/password or **OAuth2 / OpenID Connect** (full
-PKCE flow with XOAUTH2 and OAUTHBEARER SASL and automatic token refresh).
-Everything beyond core mail — CalDAV calendar, CardDAV contacts, an AI mail
-assistant, real-time notifications, Web Push, and multi-account support — is
-opt-in via config keys and adds zero overhead when disabled.
+Đặt `idle_exit_seconds` rồi cho systemd giữ cổng. Khi có kết nối đầu tiên systemd khởi động tiến trình, khi rảnh tiến trình thoát và nhả RAM.
 
-lilmail is a fully **independent project** — think Evolution + Evolution-Data-
-Server for the web. It talks to the **user's own** accounts (Gmail, Outlook, any
-IMAP/CalDAV/CardDAV) over OAuth/password and exposes a stable **`/v1`** JSON API
-(mail + `/v1/calendar` + `/v1/contacts`) that any rich client can build on.
+```ini
+# mpn-mail.socket
+[Socket]
+ListenStream=127.0.0.1:3000
 
-**Bring your own mailbox.** lilmail hosts no mail and has **no account system**:
-no sign-up, no user table, no tenant, no password of its own. The only credential
-it ever handles is the one for your own mailbox. "Logging in" means connecting a
-mailbox; nothing is provisioned anywhere when you do.
-
-## Features
-
-- **Single binary (~30 MB), no external database** — templates and vendored JS
-  embedded with `embed.FS`; durable state uses an embedded [bbolt](https://github.com/etcd-io/bbolt)
-  file by default (nothing to run), with an **optional Postgres backend** for
-  shared / multi-instance deploys; runs fully offline/air-gapped with only `config.toml`
-- **IMAP** mailbox browsing and **SMTP** sending
-- **JSON API** (`/v1`) — a clean REST surface (folders/labels, paginated
-  messages, search, flags, move/archive/spam, delete, snooze, compose + drafts,
-  attachment upload/download, scheduled send, calendar, contacts, settings) for
-  rich clients, served alongside the HTMX UI from the same engine and the same
-  session auth. See [docs/API.md](docs/API.md).
-- **OAuth2 / OpenID Connect** — authorization-code flow, PKCE (S256), automatic
-  refresh-token handling, XOAUTH2 and OAUTHBEARER SASL; password login still works
-- **Conversation threading** — JWZ algorithm (`References` / `In-Reply-To` /
-  `Message-ID`) backed by an embedded [bbolt](https://github.com/etcd-io/bbolt) store
-- **Compose** — plain-text and HTML rich-text (contenteditable toolbar), file
-  attachments (multipart/mixed MIME) with `cid:` inline images
-  (multipart/related), scheduled send (send-later, `/v1`), drafts with 30-second
-  auto-save plus IMAP APPEND/restore. Outgoing headers are guarded against
-  CR/LF/NUL header injection
-- **Recipient autocomplete** — recent-recipients store with optional CardDAV
-  address-book lookup
-- **Calendar (CalDAV) + meeting invites** — month/week views, event CRUD,
-  free/busy, and end-to-end iTIP/iMIP invites (send a `METHOD:REQUEST`, parse a
-  received invite, RSVP with `METHOD:REPLY`) — opt-in via `[caldav]`
-- **Contacts (CardDAV)** — full-card CRUD over `/v1`, groups (as vCard
-  `CATEGORIES`), starred, raster-only photo upload, and vCard/CSV import + export
-  — opt-in via `[carddav]`
-- **Real-time notifications** — IMAP IDLE watcher, SSE stream, browser
-  notifications, native desktop toasts, and VAPID Web Push — opt-in via `[notifications]`
-- **AI mail assistant** — smart compose, thread summaries, reply suggestions,
-  action-item extraction, and phishing detection via any OpenAI-compatible
-  endpoint — opt-in via `[ai]`
-- **Multiple accounts** — add/switch IMAP accounts and a unified inbox with
-  concurrent fan-out and per-account error isolation — opt-in via `[accounts]`
-- **Security-first** — JWT sessions, AES-256-GCM encrypted credentials at rest,
-  strict Content-Security-Policy, `SameSite=Lax` cookies, sandboxed email iframe
-- **Dark mode** — hand-written CSS, no CDN dependency
-- Builds and runs on **Linux, macOS, and Windows**
-
-## How it works
-
-lilmail is a server-rendered [Fiber](https://gofiber.io/) application. There is
-no SPA and no asset pipeline — HTML templates and vendored JS/CSS are compiled
-into the binary at build time, and HTMX swaps in server-rendered partials so the
-page never does a full reload.
-
-```mermaid
-%%{init: {'theme':'base','themeVariables':{'fontFamily':'ui-monospace, SFMono-Regular, Menlo, monospace','primaryColor':'#334155','primaryBorderColor':'#94a3b8','primaryTextColor':'#e2e8f0','lineColor':'#0d9488','edgeLabelBackground':'transparent','clusterBorder':'#3f8f86','clusterBkg':'transparent'}}}%%
-flowchart TD
-    classDef entry fill:#1e293b,stroke:#64748b,color:#e2e8f0,stroke-width:1.5px;
-    classDef server fill:#0f766e,stroke:#5eead4,color:#f0fdfa,stroke-width:2.5px;
-    classDef backend fill:#334155,stroke:#94a3b8,color:#e2e8f0,stroke-width:1.5px;
-
-    UI["HTMX/Alpine UI (HTMX/SSE)"] --> Server
-    React["External UIs (fetch /v1 JSON)"] --> Server
-    Server["Fiber HTTP server<br/>HTMX routes + /v1 JSON API<br/>(one Go binary)<br/>same mail engine +<br/>session auth under both"]
-    Server --> IMAP["IMAP/SMTP (your mail server)"]
-    Server --> Store["durable store (seam): bbolt by default;<br/>optional Postgres (threads, drafts, recipients, accounts)"]
-    Server --> Services["opt-in services (CalDAV, CardDAV, AI, Web Push) — off by default"]
-
-    class UI,React entry
-    class Server server
-    class IMAP,Store,Services backend
+[Install]
+WantedBy=sockets.target
 ```
 
-State that must survive a restart (conversation threads, recent recipients,
-extra-account credentials, VAPID keys, scheduled sends) lives in the durable
-store — an embedded bbolt file by default, or a shared Postgres database when
-configured; session credentials are AES-256-GCM encrypted. The same mail engine
-backs both the server-rendered HTMX UI and the `/v1` JSON API. See
-[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the request lifecycle and
-[docs/API.md](docs/API.md) for the JSON API reference.
-
-**Injected-credential mode (optional, off by default).** Normally lilmail holds
-its own session and connects to the user's mailbox itself. As an option, an
-embedding host (or the test harness) may inject the per-request connection spec as
-`X-Vulos-Broker-Auth` + `X-Vulos-Mail-*` headers, so lilmail builds the IMAP/SMTP/
-DAV client straight from the headers. Those headers only ever describe the **user's
-own** account. The path is gated by a shared secret (`LILMAIL_BROKER_SECRET`,
-matched in constant time): **if the secret is unset or mismatched, the headers are
-ignored entirely** and the request falls back to normal session auth, so standalone
-lilmail never trusts client-supplied connection headers. Each request's spec is
-**copied out of the transport buffer** as it is parsed, so one request can never
-mutate another's retained spec — per-account routing stays isolated even under a
-pooled/concurrent server. See [docs/API.md](docs/API.md) → *Injected-credential
-mode*.
-
-## Quick start
-
-```bash
-# Clone
-git clone https://github.com/vul-os/lilmail.git
-cd lilmail
-
-# Configure — copy the example and fill in your mail server details + secrets
-cp config.toml.example config.toml   # then edit
-
-# Run
-go run main.go            # or: make build && ./lilmail
+```ini
+# mpn-mail.service
+[Service]
+ExecStart=/usr/local/bin/mpn-mail
+WorkingDirectory=/var/lib/mpn-mail
+User=mpn-mail
 ```
 
-Open **http://localhost:3000** and sign in.
+Tiến trình nhận socket qua biến `LISTEN_FDS` (fd 3). Không có biến này nó tự mở cổng `[server] port`. Yêu cầu `/health` không tính là hoạt động, nên kiểm tra sống chết không giữ tiến trình dậy.
 
-Prefer a pre-built binary? Grab the latest archive from
-[Releases](https://github.com/vul-os/lilmail/releases) — only `config.toml`
-needs to be present alongside it.
+## Build
 
-### Verify a release before you run it
+Cần Go 1.25 trở lên.
 
-Every release publishes a `SHA256SUMS` manifest covering **all** of its assets,
-plus a sigstore build-provenance attestation minted from the release workflow's
-OIDC identity (there is no long-lived signing key, so there is none to leak or
-rotate). `scripts/verify.sh` is what you run before executing the bytes:
-
-```bash
-curl -fsSLO https://raw.githubusercontent.com/vul-os/lilmail/v1.13.0/scripts/verify.sh
-bash verify.sh --tag v1.13.0 --attest lilmail_1.13.0_linux_amd64.zip
+```
+GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -ldflags "-s -w" -o mpn-mail .
+go test ./...
 ```
 
-It fetches the manifest, looks up the **exact** entry for that asset (names are
-compared as strings, not as regexes) and compares digests. Two outcomes only:
-verified, or non-zero with a diagnostic naming what was wrong — missing or
-malformed manifest, no entry for the asset, truncated download, digest mismatch,
-HTML error page served where bytes were expected. There is no `--skip-verify`,
-and a `SHA256SUMS` that 404s is a **failure**, never "nothing to check".
-`--attest` additionally verifies the provenance (needs the `gh` CLI); leave it
-off and the script says out loud that provenance was *not* checked, so a pass
-never implies more than it checked.
+Một số bài kiểm thử kiểm quyền tệp kiểu Unix (`0600`, `0700`), nên chúng báo lỗi khi chạy trên Windows và chỉ có ý nghĩa trên Linux.
 
-`make verify-selftest` runs 24 synthetic-origin cases asserting that each
-refusal still fires; CI runs the same matrix on every push.
+## Cập nhật từ lilmail
 
-## Configuration
+Remote `upstream` trỏ về `https://github.com/vul-os/lilmail`. Mỗi bản phát hành của lilmail đều kèm tệp mã nguồn `lilmail_<phiên bản>_source.zip` và `SHA256SUMS` để đối chiếu.
 
-All configuration lives in `config.toml`. A minimal setup needs only an IMAP
-server and a couple of secrets:
+## Giấy phép
 
-```toml
-[server]
-port = 3000
-
-[imap]
-server = "mail.example.com"
-port   = 993
-tls    = true
-
-[smtp]
-# Derived from the IMAP server if omitted
-port         = 587
-use_starttls = true
-
-[jwt]
-secret = "your-secure-jwt-secret"
-
-[encryption]
-key = "your-32-character-encryption-key"   # exactly 32 chars (AES-256)
-```
-
-Optional sections — `[oauth2]`, `[ssl]`, `[notifications]`, `[caldav]`,
-`[carddav]`, `[ai]`, `[accounts]` — are all default-disabled. See
-[`config.toml.example`](config.toml.example) for an annotated reference of every
-key, or [docs/CONFIGURATION.md](docs/CONFIGURATION.md) for the full walkthrough.
-
-## Documentation
-
-| Document | Description |
-|----------|-------------|
-| [docs/GETTING-STARTED.md](docs/GETTING-STARTED.md) | Installation, first-run, and basic configuration walkthrough |
-| [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | Code layout, request lifecycle, and subsystem overview |
-| [docs/API.md](docs/API.md) | `/v1` JSON API reference — endpoints, auth, payloads |
-| [docs/SIGNING.md](docs/SIGNING.md) | Request authentication on the wire — broker secrets, AWS SigV4, known-answer vectors |
-| [docs/CONFIGURATION.md](docs/CONFIGURATION.md) | Complete `config.toml` reference — every key, section, and default |
-| [docs/SCREENSHOTS.md](docs/SCREENSHOTS.md) | Screenshot gallery and how to regenerate them |
-| [ROADMAP.md](ROADMAP.md) | Shipped features, planned work, and exploratory ideas |
-| [CHANGELOG.md](CHANGELOG.md) | Per-release changelog (Keep a Changelog format) |
-
-## Screenshots
-
-| Login | Inbox | Message view |
-|-------|-------|--------------|
-| ![Login](docs/screenshots/login.png) | ![Inbox](docs/screenshots/inbox.png) | ![Message](docs/screenshots/message.png) |
-
-| Compose | Settings | Search |
-|---------|----------|--------|
-| ![Compose](docs/screenshots/compose.png) | ![Settings](docs/screenshots/settings.png) | ![Search](docs/screenshots/search.png) |
-
-See [docs/SCREENSHOTS.md](docs/SCREENSHOTS.md) for the full gallery and how to
-regenerate screenshots.
-
-## Development
-
-```bash
-make build         # go build -o lilmail .
-make test          # go test ./...
-make vet           # go vet ./...
-make check         # build + vet + test
-go run main.go     # run (requires config.toml)
-./lilmail -version # print version and exit
-```
-
-Cross-compile for any supported platform:
-
-```bash
-GOOS=linux   GOARCH=amd64 go build -o lilmail-linux-amd64
-GOOS=darwin  GOARCH=arm64 go build -o lilmail-darwin-arm64
-GOOS=windows GOARCH=amd64 go build -o lilmail-windows-amd64.exe
-```
-
-### Regenerate screenshots
-
-```bash
-make screenshots        # boots lilmail + runs the Playwright screenshotter
-make demo-screenshots   # uses the in-memory demo inbox — no IMAP/SMTP needed
-```
-
-Requires Node 18+ and Playwright Chromium. See
-[docs/SCREENSHOTS.md](docs/SCREENSHOTS.md) for which screenshots need a live IMAP
-account.
-
-## Contributing
-
-Contributions are welcome. Please open an issue to discuss substantial changes
-before sending a pull request, and make sure the following passes first:
-
-```bash
-make check   # go build ./... && go vet ./... && go test ./...
-```
-
-## Brand
-
-The mark in [`brand/`](brand/) is the source of truth. Every icon this repo
-ships — favicon, PWA and app icons, the mark in the README and on the site — is
-rendered from `brand/logo.svg` rather than redrawn, so there is one approved
-drawing and no second copy to drift.
-
-Copy it outward, never edit a derived copy, and never edit `brand/` to match
-something downstream.
-
-## License
-
-[MIT](LICENSE-MIT) OR [Apache-2.0](LICENSE-APACHE) — © VulOS. lilmail is a VulOS
-project; source and issues at [github.com/vul-os/lilmail](https://github.com/vul-os/lilmail).
-
-### Third-party notices
-
-lilmail redistributes third-party software: Go modules compiled into the binary,
-and the vendored JavaScript (htmx, Alpine.js) served to the browser. Their
-licences (MIT, BSD, ISC, Apache-2.0) require the copyright notice and licence
-text to accompany every copy, so lilmail ships them:
-
-- [THIRD-PARTY-NOTICES.txt](THIRD-PARTY-NOTICES.txt) — name, version, licence and
-  full licence text for every component. Generated from the real dependency graph
-  by `make notices` (`scripts/gen-notices.sh`); never hand-edited.
-- A running lilmail serves it at **`/licenses.txt`**, linked from the login page
-  and from Settings → About.
-- Each vendored bundle also has its upstream licence next to it, e.g.
-  `assets/vendor/htmx.min.js.LICENSE`.
-
----
-
-<p align="center">
-  <a href="https://vulos.org"><img src="docs/assets/vulos-logo.png" alt="vulos" height="20"></a><br>
-  <sub><a href="https://vulos.org"><b>vulos</b></a> — open by design</sub>
-</p>
+Giữ nguyên giấy phép của lilmail: [MIT](LICENSE-MIT) hoặc [Apache-2.0](LICENSE-APACHE), tùy bạn chọn. Phần mềm bên thứ ba và giấy phép của chúng nằm trong `THIRD-PARTY-NOTICES.txt` và được phục vụ tại `/licenses.txt` khi chạy.
