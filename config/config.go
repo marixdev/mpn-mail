@@ -25,6 +25,12 @@ type ServerConfig struct {
 	// cookie set by the in-app language switcher overrides it. Defaults to "vi".
 	// An unknown value falls back to the default at request time.
 	Language string `toml:"language"`
+	// IdleExitSeconds, when > 0, makes the server exit after that many seconds
+	// with no active request or SSE connection. It is only useful behind systemd
+	// socket activation, where the socket outlives the process and the next
+	// connection relaunches it — so an idle instance frees its RAM. 0 (the
+	// default) disables it and the server runs until stopped.
+	IdleExitSeconds int `toml:"idle_exit_seconds"`
 }
 
 // AuthConfig holds login/authentication preferences that are independent of the

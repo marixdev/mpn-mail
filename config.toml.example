@@ -12,6 +12,13 @@ frame_ancestors = ""
 # add the Secure flag to session cookies. STRONGLY recommended for any
 # internet-facing deployment; set to false only for plain-HTTP local dev.
 secure_cookies = true
+# UI language: "vi" (Vietnamese, the default) or "en" (English). A per-request
+# "lang" cookie set by the in-app language switcher overrides this default.
+language = "vi"
+# Exit after this many seconds with no active request or SSE connection. Only
+# useful behind systemd socket activation, which relaunches the process on the
+# next connection — it lets an idle instance free its RAM. 0 (default) disables it.
+idle_exit_seconds = 0
 
 # Authentication / login preferences.
 [auth]

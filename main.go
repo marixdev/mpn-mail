@@ -14,11 +14,15 @@ import (
 	"lilmail/i18n"
 	"lilmail/storage"
 	"log"
+	"net"
 	"net/http"
 	"net/url"
+	"os"
 	"path/filepath"
 	"regexp"
+	"strconv"
 	"strings"
+	"sync/atomic"
 	"time"
 	"unicode"
 
@@ -120,6 +124,39 @@ var assetsFS embed.FS
 var thirdPartyNotices string
 
 var store *session.Store
+
+// Idle tracking for the optional socket-activation exit (server.idle_exit_seconds).
+// activeConns counts in-flight requests, including long-lived SSE, so an open tab
+// holds the process up; lastActivity is the last time a request started or ended.
+var (
+	lastActivity atomic.Int64
+	activeConns  atomic.Int64
+)
+
+// systemdListener returns a listener inherited from systemd socket activation
+// (LISTEN_FDS), or nil when the process was not socket-activated. With socket
+// activation systemd owns the port and launches the process on the first
+// connection, so the process may exit when idle (see idle_exit_seconds) and be
+// relaunched on demand, freeing RAM while nobody is using it.
+func systemdListener() (net.Listener, error) {
+	if os.Getenv("LISTEN_FDS") == "" {
+		return nil, nil
+	}
+	if pid, _ := strconv.Atoi(os.Getenv("LISTEN_PID")); pid != 0 && pid != os.Getpid() {
+		return nil, nil // the fds were passed to a different process
+	}
+	nfds, err := strconv.Atoi(os.Getenv("LISTEN_FDS"))
+	if err != nil || nfds < 1 {
+		return nil, nil
+	}
+	const firstFD = 3 // SD_LISTEN_FDS_START
+	f := os.NewFile(uintptr(firstFD), "systemd-socket")
+	ln, err := net.FileListener(f)
+	if err != nil {
+		return nil, fmt.Errorf("systemd socket activation: %w", err)
+	}
+	return ln, nil
+}
 
 // Helper function to determine if request is an API request
 func isAPIRequest(c *fiber.Ctx) bool {
@@ -298,6 +335,22 @@ func main() {
 	// partial, so no handler has to thread it through.
 	app.Use(func(c *fiber.Ctx) error {
 		_ = c.Bind(fiber.Map{"Lang": uiLang(c, config)})
+		return c.Next()
+	})
+
+	// Track request activity for the optional idle-exit watcher. Long-lived SSE
+	// requests keep activeConns > 0, so an open tab holds the process up; the
+	// /health probe is ignored so a liveness check does not defeat idling.
+	app.Use(func(c *fiber.Ctx) error {
+		if c.Path() == "/health" {
+			return c.Next()
+		}
+		activeConns.Add(1)
+		lastActivity.Store(time.Now().UnixNano())
+		defer func() {
+			lastActivity.Store(time.Now().UnixNano())
+			activeConns.Add(-1)
+		}()
 		return c.Next()
 	})
 
@@ -611,9 +664,38 @@ func main() {
 		})
 	})
 
-	// Start server
-	log.Printf("Starting server on port %d...\n", config.Server.Port)
-	if err := app.Listen(fmt.Sprintf(":%d", config.Server.Port)); err != nil {
-		log.Fatal("Error starting server: ", err)
+	// Optional idle-exit: under systemd socket activation the socket outlives the
+	// process, so exiting when idle frees RAM and the next connection relaunches us.
+	if d := time.Duration(config.Server.IdleExitSeconds) * time.Second; d > 0 {
+		lastActivity.Store(time.Now().UnixNano())
+		go func() {
+			tick := time.NewTicker(30 * time.Second)
+			defer tick.Stop()
+			for range tick.C {
+				if activeConns.Load() > 0 {
+					continue
+				}
+				if time.Since(time.Unix(0, lastActivity.Load())) >= d {
+					log.Printf("idle for %s with no active connections; shutting down for socket activation", d)
+					_ = app.ShutdownWithTimeout(5 * time.Second)
+					return
+				}
+			}
+		}()
+	}
+
+	// Start server. Prefer a systemd socket-activated listener when one was passed.
+	if ln, sockErr := systemdListener(); sockErr != nil {
+		log.Fatal("Error starting server: ", sockErr)
+	} else if ln != nil {
+		log.Println("Starting server on a socket-activated listener…")
+		if err := app.Listener(ln); err != nil {
+			log.Fatal("Error starting server: ", err)
+		}
+	} else {
+		log.Printf("Starting server on port %d...\n", config.Server.Port)
+		if err := app.Listen(fmt.Sprintf(":%d", config.Server.Port)); err != nil {
+			log.Fatal("Error starting server: ", err)
+		}
 	}
 }
