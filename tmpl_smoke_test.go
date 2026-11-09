@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"lilmail/i18n"
 	"strings"
 	"testing"
 	"time"
@@ -22,6 +23,8 @@ func TestTemplatesParse(t *testing.T) {
 	engine.AddFunc("trim", strings.TrimSpace)
 	engine.AddFunc("hasPrefix", strings.HasPrefix)
 	engine.AddFunc("urlEncode", func(s string) string { return s })
+	engine.AddFunc("T", i18n.T)
+	engine.AddFunc("folderLabel", i18n.FolderLabel)
 	engine.AddFunc("linkify", linkifyText)
 	engine.AddFunc("formatDate", func(tm time.Time) string { return tm.String() })
 	engine.AddFunc("formatSize", func(n int) string { return fmt.Sprintf("%d", n) })

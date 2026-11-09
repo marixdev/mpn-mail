@@ -116,7 +116,7 @@
                           }});
                  }">
         {{if $unread}}<span class="email-row__unread-dot"></span>{{end}}
-        <button class="email-row__check" title="Select"
+        <button class="email-row__check" title="{{T $.Lang "row.select"}}"
                 @click.stop="$store.mail && $store.mail.toggleSelect('{{.ID}}')"
                 :class="{ 'is-checked': $store.mail && $store.mail.isSelected('{{.ID}}') }"
                 :aria-pressed="$store.mail && $store.mail.isSelected('{{.ID}}')">
@@ -134,7 +134,7 @@
                           style="{{if .AccountColor}}background:{{.AccountColor}}{{end}}">{{.AccountLabel}}</span>
                     {{end}}
                     {{if .HasAttachments}}
-                    <span class="email-row__attach" title="Has attachments">
+                    <span class="email-row__attach" title="{{T $.Lang "row.attachments"}}">
                         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"/>
@@ -157,15 +157,15 @@
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
                 d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0"/>
         </svg>
-        <p class="empty-state__title">No results</p>
-        <p class="empty-state__sub">No messages matched &ldquo;{{.SearchQuery}}&rdquo;.</p>
+        <p class="empty-state__title">{{T .Lang "search.noresults.title"}}</p>
+        <p class="empty-state__sub">{{T .Lang "search.noresults.sub" .SearchQuery}}</p>
         {{else}}
         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.2"
                 d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
         </svg>
-        <p class="empty-state__title">All clear</p>
-        <p class="empty-state__sub">No messages in this folder.</p>
+        <p class="empty-state__title">{{T .Lang "empty.title"}}</p>
+        <p class="empty-state__sub">{{T .Lang "empty.sub"}}</p>
         {{end}}
     </div>
 {{end}}

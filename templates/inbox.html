@@ -24,7 +24,7 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
                 </svg>
-                Compose
+                {{T .Lang "compose"}}
             </button>
         </div>
 
@@ -36,16 +36,16 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
                 </svg>
-                <span class="nav-item__label">Calendar</span>
+                <span class="nav-item__label">{{T .Lang "nav.calendar"}}</span>
             </a>
             {{end}}
 
             <!-- Account / folder-tree section header -->
-            <button class="nav-section" @click="foldersOpen = !foldersOpen" aria-label="Toggle folders">
+            <button class="nav-section" @click="foldersOpen = !foldersOpen" aria-label="{{T .Lang "nav.folders.toggle"}}">
                 <svg class="nav-section__chevron" :class="{ 'is-open': foldersOpen }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/>
                 </svg>
-                <span class="nav-section__label">{{if .Email}}{{.Email}}{{else}}Folders{{end}}</span>
+                <span class="nav-section__label">{{if .Email}}{{.Email}}{{else}}{{T .Lang "nav.folders"}}{{end}}</span>
             </button>
 
             <div x-show="foldersOpen" class="nav-tree">
@@ -62,7 +62,7 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"/>
                 </svg>
-                <span class="nav-item__label">Inbox</span>
+                <span class="nav-item__label">{{folderLabel $.Lang .Name}}</span>
                 {{if gt .UnreadCount 0}}
                 <span class="nav-item__badge">{{.UnreadCount}}</span>
                 {{end}}
@@ -92,7 +92,7 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/>
                     {{end}}
                 </svg>
-                <span class="nav-item__label">{{.Name}}</span>
+                <span class="nav-item__label">{{folderLabel $.Lang .Name}}</span>
                 {{if gt .UnreadCount 0}}
                 <span class="nav-item__badge nav-item__badge--muted">{{.UnreadCount}}</span>
                 {{end}}
@@ -107,7 +107,7 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
                 </svg>
-                <span class="nav-item__label">Settings</span>
+                <span class="nav-item__label">{{T .Lang "settings"}}</span>
             </a>
         </nav>
     </aside>
@@ -122,7 +122,7 @@
 
             <div class="list-toolbar">
                 <span class="list-toolbar__title">
-                    {{if .Unified}}Unified Inbox{{else if .CurrentFolder}}{{.CurrentFolder}}{{else}}Inbox{{end}}
+                    {{if .Unified}}{{T .Lang "unified.title"}}{{else if .CurrentFolder}}{{folderLabel .Lang .CurrentFolder}}{{else}}{{T .Lang "folder.inbox"}}{{end}}
                 </span>
                 {{if .UnifiedAvailable}}
                 <div class="list-toolbar__unified">
@@ -134,8 +134,8 @@
                        hx-indicator="#list-spinner"
                        @click="showEmailViewer = false"
                        class="unified-toggle unified-toggle--active"
-                       title="Switch to single-account inbox">
-                        Unified
+                       title="{{T .Lang "unified.single.title"}}">
+                        {{T .Lang "unified.toggle"}}
                     </a>
                     {{else}}
                     <a href="/inbox?unified=1"
@@ -145,14 +145,14 @@
                        hx-indicator="#list-spinner"
                        @click="showEmailViewer = false"
                        class="unified-toggle"
-                       title="Show all accounts in one list">
-                        Unified
+                       title="{{T .Lang "unified.all.title"}}">
+                        {{T .Lang "unified.toggle"}}
                     </a>
                     {{end}}
                 </div>
                 {{end}}
                 {{if .AccountErrors}}
-                <div class="list-toolbar__acct-errors" title="Some accounts failed to load">
+                <div class="list-toolbar__acct-errors" title="{{T .Lang "acct.failed.title"}}">
                     {{range .AccountErrors}}{{if .Err}}
                     <span class="acct-error-dot" style="{{if .AccountColor}}background:{{.AccountColor}}{{end}}"
                           title="{{.AccountLabel}}: {{.Err}}">!</span>
@@ -168,14 +168,14 @@
                     <button class="list-ctrl-btn"
                             :class="{ 'is-active': $store.mail && $store.mail.density === 'compact' }"
                             @click="$store.mail && $store.mail.toggleDensity()"
-                            :title="$store.mail && $store.mail.density === 'compact' ? 'Comfortable density' : 'Compact density'"
-                            aria-label="Toggle list density">
+                            :title="$store.mail && $store.mail.density === 'compact' ? '{{T .Lang "density.comfortable"}}' : '{{T .Lang "density.compact"}}'"
+                            aria-label="{{T .Lang "density.toggle"}}">
                         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/>
                         </svg>
                     </button>
                     <div class="layout-toggle" x-data="{ open: false }" @click.away="open = false">
-                        <button class="list-ctrl-btn" @click="open = !open" title="Reading pane layout" aria-label="Reading pane layout">
+                        <button class="list-ctrl-btn" @click="open = !open" title="{{T .Lang "pane.layout"}}" aria-label="{{T .Lang "pane.layout"}}">
                             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <rect x="3" y="4" width="18" height="16" rx="2" stroke-width="2"/>
                                 <path stroke-width="2" d="M14 4v16"/>
@@ -185,17 +185,17 @@
                             <button class="layout-menu__item" :class="{ 'is-active': $store.mail.pane==='right' }"
                                     @click="$store.mail.setPane('right'); open=false">
                                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2" stroke-width="2"/><path stroke-width="2" d="M13 4v16"/></svg>
-                                Pane on right
+                                {{T .Lang "pane.right"}}
                             </button>
                             <button class="layout-menu__item" :class="{ 'is-active': $store.mail.pane==='bottom' }"
                                     @click="$store.mail.setPane('bottom'); open=false">
                                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2" stroke-width="2"/><path stroke-width="2" d="M3 13h18"/></svg>
-                                Pane on bottom
+                                {{T .Lang "pane.bottom"}}
                             </button>
                             <button class="layout-menu__item" :class="{ 'is-active': $store.mail.pane==='off' }"
                                     @click="$store.mail.setPane('off'); showEmailViewer=false; open=false">
                                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2" stroke-width="2"/></svg>
-                                No reading pane
+                                {{T .Lang "pane.off"}}
                             </button>
                         </div>
                     </div>
@@ -205,23 +205,23 @@
             <!-- Bulk action bar (shown when rows are selected) -->
             <div class="bulk-bar" x-data
                  x-show="$store.mail && $store.mail.selection.length > 0" x-cloak>
-                <span class="bulk-bar__count" x-text="($store.mail ? $store.mail.selection.length : 0) + ' selected'"></span>
+                <span class="bulk-bar__count" x-text="($store.mail ? $store.mail.selection.length : 0) + ' {{T .Lang "bulk.selected"}}'"></span>
                 <div class="bulk-bar__actions">
-                    <button class="bulk-bar__btn" title="Mark unread"
+                    <button class="bulk-bar__btn" title="{{T .Lang "bulk.unread.title"}}"
                             @click="$store.mail.selection.forEach(function(id){
                                 htmx.ajax('PATCH', '/api/email/'+id+'/unread', {swap:'none', headers:{'X-Folder':'{{.CurrentFolder}}'}});
                             }); setTimeout(function(){ htmx.ajax('GET','/api/folder/{{.CurrentFolder | urlEncode}}/emails',{target:'#email-list-inner',swap:'innerHTML'}); $store.mail.clearSelection(); }, 250)">
                         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
-                        Unread
+                        {{T .Lang "bulk.unread"}}
                     </button>
-                    <button class="bulk-bar__btn bulk-bar__btn--danger" title="Delete selected"
+                    <button class="bulk-bar__btn bulk-bar__btn--danger" title="{{T .Lang "bulk.delete.title"}}"
                             @click="$store.mail.selection.forEach(function(id){
                                 htmx.ajax('DELETE', '/api/email/'+id, {swap:'none', headers:{'X-Folder':'{{.CurrentFolder}}'}});
                             }); setTimeout(function(){ htmx.ajax('GET','/api/folder/{{.CurrentFolder | urlEncode}}/emails',{target:'#email-list-inner',swap:'innerHTML'}); $store.mail.clearSelection(); showEmailViewer=false; }, 250)">
                         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-                        Delete
+                        {{T .Lang "bulk.delete"}}
                     </button>
-                    <button class="bulk-bar__btn" title="Clear selection" @click="$store.mail.clearSelection()">Clear</button>
+                    <button class="bulk-bar__btn" title="{{T .Lang "bulk.clear.title"}}" @click="$store.mail.clearSelection()">{{T .Lang "bulk.clear"}}</button>
                 </div>
             </div>
 
@@ -244,7 +244,7 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.2"
                             d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
                     </svg>
-                    <p>Select a message to read</p>
+                    <p>{{T .Lang "viewer.placeholder"}}</p>
                 </div>
             </div>
         </div>
@@ -257,7 +257,7 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
                     </svg>
                 </button>
-                <span class="viewer-mobile__label">Back</span>
+                <span class="viewer-mobile__label">{{T .Lang "viewer.back"}}</span>
             </div>
             <div id="email-viewer-pane-mobile" style="flex:1;overflow-y:auto;"></div>
         </div>
@@ -442,7 +442,7 @@ document.addEventListener('DOMContentLoaded', function() {
                           }});
                  }">
         {{if $unread}}<span class="email-row__unread-dot"></span>{{end}}
-        <button class="email-row__check" title="Select"
+        <button class="email-row__check" title="{{T $.Lang "row.select"}}"
                 @click.stop="$store.mail && $store.mail.toggleSelect('{{.ID}}')"
                 :class="{ 'is-checked': $store.mail && $store.mail.isSelected('{{.ID}}') }"
                 :aria-pressed="$store.mail && $store.mail.isSelected('{{.ID}}')">
@@ -460,7 +460,7 @@ document.addEventListener('DOMContentLoaded', function() {
                           style="{{if .AccountColor}}background:{{.AccountColor}}{{end}}">{{.AccountLabel}}</span>
                     {{end}}
                     {{if .HasAttachments}}
-                    <span class="email-row__attach" title="Has attachments">
+                    <span class="email-row__attach" title="{{T $.Lang "row.attachments"}}">
                         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"/>
@@ -482,8 +482,8 @@ document.addEventListener('DOMContentLoaded', function() {
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.2"
                 d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
         </svg>
-        <p class="empty-state__title">All clear</p>
-        <p class="empty-state__sub">No messages in this folder.</p>
+        <p class="empty-state__title">{{T .Lang "empty.title"}}</p>
+        <p class="empty-state__sub">{{T .Lang "empty.sub"}}</p>
     </div>
 {{end}}
 {{end}}

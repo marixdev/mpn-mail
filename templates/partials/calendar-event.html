@@ -14,7 +14,7 @@
             <div class="event-detail__row-content">
                 <div class="event-detail__date">{{.Event.Start.Format "Monday, January 2, 2006"}}</div>
                 {{if .Event.AllDay}}
-                <div class="event-detail__time">All day</div>
+                <div class="event-detail__time">{{T .Lang "cal.allday"}}</div>
                 {{else}}
                 <div class="event-detail__time">{{.Event.Start.Format "15:04"}} – {{.Event.End.Format "15:04"}}</div>
                 {{end}}

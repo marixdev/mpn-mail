@@ -21,6 +21,10 @@ type ServerConfig struct {
 	// reverse proxy). Defaults to false so plain-HTTP local dev works out of the
 	// box; set to true in any internet-facing deployment.
 	SecureCookies bool `toml:"secure_cookies"`
+	// Language is the default UI locale ("vi" or "en"). A per-request "lang"
+	// cookie set by the in-app language switcher overrides it. Defaults to "vi".
+	// An unknown value falls back to the default at request time.
+	Language string `toml:"language"`
 }
 
 // AuthConfig holds login/authentication preferences that are independent of the
@@ -296,6 +300,9 @@ func LoadConfig(filepath string) (*Config, error) {
 
 	config.Server.UsernameIsEmail = true
 	config.Server.Port = 3000
+	// Default UI locale. A config file may override it via [server] language, and
+	// a per-request "lang" cookie overrides that. Normalised at request time.
+	config.Server.Language = "vi"
 	// Durable store defaults to the embedded bbolt backend (single-binary, no
 	// external services). Postgres is opt-in via [storage].
 	config.Storage.Backend = "bolt"

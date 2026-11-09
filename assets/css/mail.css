@@ -15,12 +15,12 @@
   */
 
   /* Surfaces — warm "paper" tones */
-  --c-bg:          #FBF7F4;   /* Paper — app background */
-  --c-surface:     #FFFDFB;   /* clean warm white cards/panes */
-  --c-surface-alt: #F6F0EA;   /* subtle warm tint for hovers/strips */
-  --c-surface-hover:#F1EAE3;
-  --c-border:      #EEE6E0;   /* Mist — dividers / input borders */
-  --c-border-soft: #F4EEE8;   /* a touch lighter */
+  --c-bg:          #F8FAFC;   /* app background (slate-50, matches the panel) */
+  --c-surface:     #FFFFFF;   /* white cards/panes */
+  --c-surface-alt: #F1F5F9;   /* subtle tint for hovers/strips (slate-100) */
+  --c-surface-hover:#EEF2F7;
+  --c-border:      #E5E7EB;   /* dividers / input borders (slate-200) */
+  --c-border-soft: #EEF1F4;   /* a touch lighter */
 
   /* Text */
   --c-text:        #1F2A37;   /* Ink */
@@ -28,11 +28,11 @@
   --c-text-3:      #9AA1AB;   /* lighter slate */
   --c-text-inv:    #ffffff;
 
-  /* Accent — Coral (primary brand) */
-  --c-accent:      #F2674E;
-  --c-accent-dark: #D94E37;
-  --c-accent-soft: #FCE9E4;
-  --c-accent-text: #9E3520;
+  /* Accent — Teal (primary brand, matches the panel) */
+  --c-accent:      #14B8A6;
+  --c-accent-dark: #0E9384;
+  --c-accent-soft: #DCF5F1;
+  --c-accent-text: #0B6B60;
 
   /* Link / highlight — Teal */
   --c-link:        #14B8A6;
@@ -89,21 +89,21 @@
 @media (prefers-color-scheme: dark) {
   :root {
     /* Warm-charcoal surfaces that keep the coral/teal identity in the dark */
-    --c-bg:          #16130F;
-    --c-surface:     #211D18;
-    --c-surface-alt: #2A251F;
-    --c-surface-hover:#332D26;
-    --c-border:      #3A332B;
-    --c-border-soft: #2E2820;
+    --c-bg:          #0F172A;
+    --c-surface:     #1E293B;
+    --c-surface-alt: #243245;
+    --c-surface-hover:#2C3A4F;
+    --c-border:      #334155;
+    --c-border-soft: #273449;
 
     --c-text:        #F4EFE9;
     --c-text-2:      #B7AFA4;
     --c-text-3:      #847C71;
 
-    --c-accent:      #F2785F;
-    --c-accent-dark: #FF8E76;
-    --c-accent-soft: #3A241D;
-    --c-accent-text: #FBB6A4;
+    --c-accent:      #2DD4BF;
+    --c-accent-dark: #5EEAD9;
+    --c-accent-soft: #134E4A;
+    --c-accent-text: #99F6E4;
 
     --c-link:        #2DD4BF;
     --c-link-dark:   #5EEAD9;

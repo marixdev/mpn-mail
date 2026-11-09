@@ -3,7 +3,7 @@
         <!-- Logo -->
         <div class="login-logo">
             <img src="/assets/lilmail-favicon.svg" alt="" class="login-logo-img" aria-hidden="true">
-            <span class="login-logo-word">lilmail</span>
+            <span class="login-logo-word">{{T .Lang "brand"}}</span>
         </div>
 
         {{if .Error}}
@@ -18,7 +18,7 @@
 
         <form action="/login" method="POST">
             <div class="form-group">
-                <label for="email" class="form-label">Email address</label>
+                <label for="email" class="form-label">{{T .Lang "login.email"}}</label>
                 <input id="email" name="email" type="email" autocomplete="email" required
                        value="{{.Email}}"
                        placeholder="you@example.com"
@@ -27,7 +27,7 @@
             </div>
 
             <div class="form-group">
-                <label for="password" class="form-label">Password</label>
+                <label for="password" class="form-label">{{T .Lang "login.password"}}</label>
                 <input id="password" name="password" type="password" autocomplete="current-password" required
                        placeholder="••••••••"
                        class="form-input"
@@ -37,7 +37,7 @@
             <div class="form-group" style="margin-bottom: 18px;">
                 <label class="form-check">
                     <input id="remember_me" name="remember_me" type="checkbox">
-                    Remember me for 30 days
+                    {{T .Lang "login.remember"}}
                 </label>
             </div>
 
@@ -46,18 +46,18 @@
                     <circle style="opacity:.25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
                     <path style="opacity:.75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"/>
                 </svg>
-                <span x-text="loading ? 'Signing in…' : 'Sign in'">Sign in</span>
+                <span x-text="loading ? '{{T .Lang "login.signingin"}}' : '{{T .Lang "login.signin"}}'">{{T .Lang "login.signin"}}</span>
             </button>
         </form>
 
         {{if .OAuth2Enabled}}
-        <div class="divider">or</div>
-        <a href="/auth/oauth/login" class="btn-secondary">Continue with OAuth2</a>
+        <div class="divider">{{T .Lang "login.or"}}</div>
+        <a href="/auth/oauth/login" class="btn-secondary">{{T .Lang "login.oauth"}}</a>
         {{end}}
 
-        <p class="form-hint">Requires IMAP server credentials</p>
+        <p class="form-hint">{{T .Lang "login.hint.imap"}}</p>
         <p class="form-hint">
-            <a href="/licenses.txt" target="_blank" rel="noopener">Open-source licences</a>
+            <a href="/licenses.txt" target="_blank" rel="noopener">{{T .Lang "login.licenses"}}</a>
         </p>
     </div>
 

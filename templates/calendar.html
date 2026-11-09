@@ -21,7 +21,7 @@
                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
                 </svg>
-                New Event
+                {{T .Lang "cal.newevent"}}
             </button>
         </div>
 
@@ -31,21 +31,21 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
                 </svg>
-                <span class="nav-item__label">Month view</span>
+                <span class="nav-item__label">{{T .Lang "cal.month"}}</span>
             </a>
             <a href="/calendar/week" class="nav-item">
                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M4 6h16M4 10h16M4 14h16M4 18h16"/>
                 </svg>
-                <span class="nav-item__label">Week view</span>
+                <span class="nav-item__label">{{T .Lang "cal.week"}}</span>
             </a>
             <a href="/inbox" class="nav-item">
                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
                 </svg>
-                <span class="nav-item__label">Back to Mail</span>
+                <span class="nav-item__label">{{T .Lang "cal.backtomail"}}</span>
             </a>
         </nav>
     </aside>
@@ -69,20 +69,20 @@
                 </a>
             </div>
             <div class="cal-actions">
-                <a href="/calendar?year={{.Today.Year}}&month={{.Today.Month}}" class="cal-action-btn">Today</a>
-                <a href="/calendar/week" class="cal-action-btn">Week</a>
+                <a href="/calendar?year={{.Today.Year}}&month={{.Today.Month}}" class="cal-action-btn">{{T .Lang "cal.today"}}</a>
+                <a href="/calendar/week" class="cal-action-btn">{{T .Lang "cal.weekbtn"}}</a>
             </div>
         </div>
 
         <!-- Weekday header -->
         <div class="cal-header">
-            <div class="cal-header__day">Mon</div>
-            <div class="cal-header__day">Tue</div>
-            <div class="cal-header__day">Wed</div>
-            <div class="cal-header__day">Thu</div>
-            <div class="cal-header__day">Fri</div>
-            <div class="cal-header__day cal-header__day--weekend">Sat</div>
-            <div class="cal-header__day cal-header__day--weekend">Sun</div>
+            <div class="cal-header__day">{{T .Lang "cal.mon"}}</div>
+            <div class="cal-header__day">{{T .Lang "cal.tue"}}</div>
+            <div class="cal-header__day">{{T .Lang "cal.wed"}}</div>
+            <div class="cal-header__day">{{T .Lang "cal.thu"}}</div>
+            <div class="cal-header__day">{{T .Lang "cal.fri"}}</div>
+            <div class="cal-header__day cal-header__day--weekend">{{T .Lang "cal.sat"}}</div>
+            <div class="cal-header__day cal-header__day--weekend">{{T .Lang "cal.sun"}}</div>
         </div>
 
         <!-- 6-week grid -->
@@ -123,7 +123,7 @@
          x-transition:leave-end="opacity-0 translate-y-4">
 
         <div class="modal-card__header">
-            <span class="modal-card__title">New Event</span>
+            <span class="modal-card__title">{{T .Lang "cal.newevent"}}</span>
             <button class="modal-card__close" @click="showCreateModal = false">
                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
@@ -132,35 +132,35 @@
         </div>
 
         <form method="POST" action="/calendar/event" class="modal-card__body">
-            <input type="text" name="summary" placeholder="Event title *" required class="field-input">
+            <input type="text" name="summary" placeholder="{{T .Lang "cal.eventtitle"}}" required class="field-input">
 
             <label class="field-check">
                 <input type="checkbox" name="all_day" value="on" x-model="allDay">
-                All day
+                {{T .Lang "cal.allday"}}
             </label>
 
             <div x-show="allDay">
-                <label class="field-label">Date</label>
+                <label class="field-label">{{T .Lang "cal.date"}}</label>
                 <input type="date" name="start_date" class="field-input">
             </div>
 
             <div x-show="!allDay" style="display:flex;gap:8px;">
                 <div style="flex:1;">
-                    <label class="field-label">Start</label>
+                    <label class="field-label">{{T .Lang "cal.start"}}</label>
                     <input type="datetime-local" name="start" class="field-input">
                 </div>
                 <div style="flex:1;">
-                    <label class="field-label">End</label>
+                    <label class="field-label">{{T .Lang "cal.end"}}</label>
                     <input type="datetime-local" name="end" class="field-input">
                 </div>
             </div>
 
-            <input type="text" name="location" placeholder="Location" class="field-input">
-            <textarea name="description" rows="2" placeholder="Description" class="field-input" style="resize:none;"></textarea>
+            <input type="text" name="location" placeholder="{{T .Lang "cal.location"}}" class="field-input">
+            <textarea name="description" rows="2" placeholder="{{T .Lang "cal.description"}}" class="field-input" style="resize:none;"></textarea>
 
             <div class="modal-card__footer" style="padding:0;border:none;">
-                <button type="button" class="btn-sm-cancel" @click="showCreateModal = false">Cancel</button>
-                <button type="submit" class="btn-sm-primary">Create</button>
+                <button type="button" class="btn-sm-cancel" @click="showCreateModal = false">{{T .Lang "cal.cancel"}}</button>
+                <button type="submit" class="btn-sm-primary">{{T .Lang "cal.create"}}</button>
             </div>
         </form>
     </div>

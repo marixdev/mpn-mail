@@ -11,6 +11,7 @@ import (
 	"lilmail/handlers/api"
 	"lilmail/handlers/jsonapi"
 	"lilmail/handlers/web"
+	"lilmail/i18n"
 	"lilmail/storage"
 	"log"
 	"net/http"
@@ -51,6 +52,17 @@ func titleCase(s string) string {
 		}
 	}
 	return b.String()
+}
+
+// uiLang resolves the UI locale for a request: a valid "lang" cookie (set by the
+// in-app switcher) wins, otherwise the configured default, clamped to a locale
+// the app actually ships.
+func uiLang(c *fiber.Ctx, cfg *config.Config) string {
+	lang := c.Cookies("lang")
+	if !i18n.Supported(lang) {
+		lang = cfg.Server.Language
+	}
+	return i18n.Resolve(lang)
 }
 
 // linkifyRe matches, in a single left-to-right pass, bare http(s) URLs, www.
@@ -171,6 +183,13 @@ func main() {
 	engine.AddFunc("hasPrefix", strings.HasPrefix)
 	engine.AddFunc("urlEncode", url.QueryEscape)
 
+	// T is the i18n lookup used from every template as {{T $.Lang "key"}}.
+	// $.Lang is put on each render by the language middleware below.
+	engine.AddFunc("T", i18n.T)
+
+	// folderLabel localizes well-known IMAP folder names: {{folderLabel $.Lang .Name}}.
+	engine.AddFunc("folderLabel", i18n.FolderLabel)
+
 	// linkify HTML-escapes a plain-text body and turns bare URLs and email
 	// addresses into clickable links. Newlines are preserved by the
 	// white-space: pre-wrap CSS on the container, so we only inject anchors.
@@ -274,6 +293,14 @@ func main() {
 		return c.Next()
 	})
 
+	// Resolve the UI locale once per request and expose it to every template as
+	// $.Lang. c.Bind merges it into the layout, the embedded page and every
+	// partial, so no handler has to thread it through.
+	app.Use(func(c *fiber.Ctx) error {
+		_ = c.Bind(fiber.Map{"Lang": uiLang(c, config)})
+		return c.Next()
+	})
+
 	// Serve embedded assets
 	assetsSub, err := fs.Sub(assetsFS, "assets")
 	if err != nil {
@@ -347,7 +374,7 @@ func main() {
 		},
 		LimitReached: func(c *fiber.Ctx) error {
 			return c.Status(fiber.StatusTooManyRequests).Render("login", fiber.Map{
-				"Error": "Too many login attempts. Please wait and try again.",
+				"Error": i18n.T(uiLang(c, config), "login.toomany"),
 			})
 		},
 	})
