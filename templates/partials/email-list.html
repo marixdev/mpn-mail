@@ -9,12 +9,12 @@
         <div class="email-row{{if $unread}} is-unread{{end}}"
              @click="if({{$thread.Count}} > 1) { open = !open } else {
                  showEmailViewer = true;
-                 htmx.ajax('GET', '/api/email/{{$latest.ID}}',
+                 htmx.ajax('GET', '{{$.Base}}/api/email/{{$latest.ID}}',
                      {target:'#email-viewer-pane', swap:'innerHTML',
                       headers:{'X-Folder':'{{$.CurrentFolder}}','Authorization':'Bearer {{$.Token}}'{{if $latest.AccountEmail}},'X-Account-Email':'{{$latest.AccountEmail}}'{{end}}
                       }});
                  if(window.innerWidth < 1024) {
-                     htmx.ajax('GET', '/api/email/{{$latest.ID}}',
+                     htmx.ajax('GET', '{{$.Base}}/api/email/{{$latest.ID}}',
                          {target:'#email-viewer-pane-mobile', swap:'innerHTML',
                           headers:{'X-Folder':'{{$.CurrentFolder}}','Authorization':'Bearer {{$.Token}}'{{if $latest.AccountEmail}},'X-Account-Email':'{{$latest.AccountEmail}}'{{end}}
                           }});
@@ -69,14 +69,14 @@
             {{$mUnread := true}}
             {{range $m.Flags}}{{if eq . "\\Seen"}}{{$mUnread = false}}{{end}}{{end}}
             <div class="thread-msg"
-                 hx-get="/api/email/{{$m.ID}}"
+                 hx-get="{{$.Base}}/api/email/{{$m.ID}}"
                  hx-target="#email-viewer-pane"
                  hx-swap="innerHTML"
                  hx-headers='{"X-Folder": "{{$.CurrentFolder}}", "Authorization": "Bearer {{$.Token}}"{{if $m.AccountEmail}}, "X-Account-Email": "{{$m.AccountEmail}}"{{end}}}'
                  hx-indicator="#list-spinner"
                  @click="showEmailViewer = true;
                          if(window.innerWidth < 1024) {
-                             htmx.ajax('GET', '/api/email/{{$m.ID}}',
+                             htmx.ajax('GET', '{{$.Base}}/api/email/{{$m.ID}}',
                                  {target:'#email-viewer-pane-mobile', swap:'innerHTML',
                                   headers:{'X-Folder':'{{$.CurrentFolder}}','Authorization':'Bearer {{$.Token}}'{{if $m.AccountEmail}},'X-Account-Email':'{{$m.AccountEmail}}'{{end}}
                                   }});
@@ -103,14 +103,14 @@
     {{$unread := true}}
     {{range .Flags}}{{if eq . "\\Seen"}}{{$unread = false}}{{end}}{{end}}
     <div class="email-row{{if $unread}} is-unread{{end}}"
-         hx-get="/api/email/{{.ID}}"
+         hx-get="{{$.Base}}/api/email/{{.ID}}"
          hx-target="#email-viewer-pane"
          hx-swap="innerHTML"
          hx-headers='{"X-Folder": "{{$.CurrentFolder}}", "Authorization": "Bearer {{$.Token}}"{{if .AccountEmail}}, "X-Account-Email": "{{.AccountEmail}}"{{end}}}'
          hx-indicator="#list-spinner"
          @click="showEmailViewer = true;
                  if(window.innerWidth < 1024) {
-                     htmx.ajax('GET', '/api/email/{{.ID}}',
+                     htmx.ajax('GET', '{{$.Base}}/api/email/{{.ID}}',
                          {target:'#email-viewer-pane-mobile', swap:'innerHTML',
                           headers:{'X-Folder':'{{$.CurrentFolder}}','Authorization':'Bearer {{$.Token}}'{{if .AccountEmail}},'X-Account-Email':'{{.AccountEmail}}'{{end}}
                           }});

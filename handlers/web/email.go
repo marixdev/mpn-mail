@@ -4,6 +4,7 @@ package web
 import (
 	"bytes"
 	"fmt"
+	"lilmail/basepath"
 	"lilmail/config"
 	"lilmail/handlers/api"
 	"lilmail/handlers/htmlsafe"
@@ -100,12 +101,12 @@ func (h *EmailHandler) buildThreads(username, folder string, emails []models.Ema
 func (h *EmailHandler) HandleInbox(c *fiber.Ctx) error {
 	username := c.Locals("username")
 	if username == nil {
-		return c.Redirect("/login")
+		return c.Redirect(basepath.Path(c, "/login"))
 	}
 
 	userStr, ok := username.(string)
 	if !ok {
-		return c.Redirect("/login")
+		return c.Redirect(basepath.Path(c, "/login"))
 	}
 	sessionEmail, _ := c.Locals("email").(string)
 
@@ -119,7 +120,7 @@ func (h *EmailHandler) HandleInbox(c *fiber.Ctx) error {
 	// Get JWT token for API requests
 	token, err := api.GetSessionToken(c, h.store)
 	if err != nil {
-		return c.Redirect("/login")
+		return c.Redirect(basepath.Path(c, "/login"))
 	}
 
 	// Determine whether unified mode is requested.
@@ -186,17 +187,17 @@ func (h *EmailHandler) HandleInbox(c *fiber.Ctx) error {
 func (h *EmailHandler) HandleFolder(c *fiber.Ctx) error {
 	username := c.Locals("username")
 	if username == nil {
-		return c.Redirect("/login")
+		return c.Redirect(basepath.Path(c, "/login"))
 	}
 
 	userStr, ok := username.(string)
 	if !ok {
-		return c.Redirect("/login")
+		return c.Redirect(basepath.Path(c, "/login"))
 	}
 
 	folderName, err := url.QueryUnescape(c.Params("name"))
 	if folderName == "" {
-		return c.Redirect("/inbox")
+		return c.Redirect(basepath.Path(c, "/inbox"))
 	}
 
 	// Load folders for sidebar
@@ -222,7 +223,7 @@ func (h *EmailHandler) HandleFolder(c *fiber.Ctx) error {
 	// Get JWT token for API requests
 	token, err := api.GetSessionToken(c, h.store)
 	if err != nil {
-		return c.Redirect("/login")
+		return c.Redirect(basepath.Path(c, "/login"))
 	}
 
 	// Build JWZ threads using the shared bbolt store.

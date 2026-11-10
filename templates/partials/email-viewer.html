@@ -176,10 +176,10 @@
 
             <!-- Mark unread (wired) -->
             <button class="rt-btn" data-action="unread" title="{{T .Lang "ev.unread.title"}}"
-                    hx-patch="/api/email/{{.Email.ID}}/unread"
+                    hx-patch="{{$.Base}}/api/email/{{.Email.ID}}/unread"
                     hx-swap="none"
                     hx-headers='{"X-Folder": "{{.CurrentFolder}}"}'
-                    hx-on::after-request="htmx.ajax('GET', '/api/folder/{{.CurrentFolder | urlEncode}}/emails', {target:'#email-list-inner', swap:'innerHTML'})">
+                    hx-on::after-request="htmx.ajax('GET', '{{$.Base}}/api/folder/{{.CurrentFolder | urlEncode}}/emails', {target:'#email-list-inner', swap:'innerHTML'})">
                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
                 </svg>
@@ -215,10 +215,10 @@
 
             <!-- Delete (wired) -->
             <button class="rt-btn rt-btn--danger" data-action="delete" title="{{T .Lang "ev.delete.title"}}"
-                    hx-delete="/api/email/{{.Email.ID}}"
+                    hx-delete="{{$.Base}}/api/email/{{.Email.ID}}"
                     hx-swap="none"
                     hx-headers='{"X-Folder": "{{.CurrentFolder}}"}'
-                    hx-on::after-request="showEmailViewer = false; htmx.ajax('GET', '/api/folder/{{.CurrentFolder | urlEncode}}/emails', {target:'#email-list-inner', swap:'innerHTML'})">
+                    hx-on::after-request="showEmailViewer = false; htmx.ajax('GET', '{{$.Base}}/api/folder/{{.CurrentFolder | urlEncode}}/emails', {target:'#email-list-inner', swap:'innerHTML'})">
                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
                 </svg>
@@ -243,7 +243,7 @@
                 <div class="cal-banner__sub">{{T $.Lang "ev.calinvite.sub"}}</div>
                 <div x-show="!rsvpDone" class="cal-banner__actions">
                     <button class="btn-rsvp btn-rsvp--accept"
-                            hx-post="/calendar/rsvp"
+                            hx-post="{{$.Base}}/calendar/rsvp"
                             hx-vals='{"status":"accepted","uid":"{{$.Email.ID}}","organizer":"{{$.Email.From}}"}'
                             hx-swap="none"
                             hx-on::after-request="if(event.detail.successful){rsvpDone=true;rsvpMsg='{{T $.Lang "ev.rsvp.accepted"}}'}else{rsvpMsg='{{T $.Lang "ev.rsvp.error"}}';rsvpDone=true}">
@@ -253,7 +253,7 @@
                         {{T $.Lang "ev.accept"}}
                     </button>
                     <button class="btn-rsvp btn-rsvp--tentative"
-                            hx-post="/calendar/rsvp"
+                            hx-post="{{$.Base}}/calendar/rsvp"
                             hx-vals='{"status":"tentative","uid":"{{$.Email.ID}}","organizer":"{{$.Email.From}}"}'
                             hx-swap="none"
                             hx-on::after-request="if(event.detail.successful){rsvpDone=true;rsvpMsg='{{T $.Lang "ev.rsvp.tentative"}}'}else{rsvpMsg='{{T $.Lang "ev.rsvp.error"}}';rsvpDone=true}">
@@ -264,7 +264,7 @@
                         {{T $.Lang "ev.tentative"}}
                     </button>
                     <button class="btn-rsvp btn-rsvp--decline"
-                            hx-post="/calendar/rsvp"
+                            hx-post="{{$.Base}}/calendar/rsvp"
                             hx-vals='{"status":"declined","uid":"{{$.Email.ID}}","organizer":"{{$.Email.From}}"}'
                             hx-swap="none"
                             hx-on::after-request="if(event.detail.successful){rsvpDone=true;rsvpMsg='{{T $.Lang "ev.rsvp.declined"}}'}else{rsvpMsg='{{T $.Lang "ev.rsvp.error"}}';rsvpDone=true}">
@@ -279,7 +279,7 @@
                 </div>
             </div>
             <div class="cal-banner__dl">
-                <a href="/api/attachment/{{.ID}}" class="btn-rsvp-link">
+                <a href="{{$.Base}}/api/attachment/{{.ID}}" class="btn-rsvp-link">
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
@@ -296,7 +296,7 @@
     {{if .Email.Attachments}}
     <div class="attach-strip">
         {{range .Email.Attachments}}
-        <a href="/api/attachment/{{.ID}}" class="attach-chip">
+        <a href="{{$.Base}}/api/attachment/{{.ID}}" class="attach-chip">
             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                     d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"/>

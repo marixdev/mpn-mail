@@ -13,6 +13,10 @@
 
 const LILMAIL_ORIGIN = self.location.origin;
 
+// The path the program is mounted on: the scope the worker was registered with, without its closing slash (empty when the program has its
+// own address). The worker takes it from there because it has no page to read it from.
+const BASE = new URL(registration.scope).pathname.replace(/\/$/, '');
+
 /**
  * @typedef {Object} PushPayload
  * @property {string} [from]
@@ -68,11 +72,11 @@ addEventListener('push', function (event) {
     const title = 'New mail from ' + (data.from || 'unknown');
     const options = {
         body: data.subject || '(no subject)',
-        icon: '/assets/icon.png',
-        badge: '/assets/icon.png',
+        icon: BASE + '/assets/icon.png',
+        badge: BASE + '/assets/icon.png',
         tag: data.tag || 'newmail',          // collapse multiple notifications
         renotify: false,
-        data: { url: LILMAIL_ORIGIN + '/inbox' },
+        data: { url: LILMAIL_ORIGIN + BASE + '/inbox' },
     };
 
     event.waitUntil(registration.showNotification(title, options));
@@ -86,14 +90,14 @@ addEventListener('notificationclick', function (event) {
     const notifData = event.notification.data;
     const targetUrl = (isUrlBag(notifData) && typeof notifData.url === 'string')
         ? notifData.url
-        : LILMAIL_ORIGIN + '/inbox';
+        : LILMAIL_ORIGIN + BASE + '/inbox';
 
     event.waitUntil(
         clients.matchAll({ type: 'window', includeUncontrolled: true }).then(function (windowClients) {
             // Focus an existing LilMail tab if one is open.
             for (let i = 0; i < windowClients.length; i++) {
                 const client = windowClients[i];
-                if (client.url.startsWith(LILMAIL_ORIGIN) && 'focus' in client) {
+                if (client.url.startsWith(LILMAIL_ORIGIN + BASE) && 'focus' in client) {
                     return client.focus();
                 }
             }
@@ -156,7 +160,7 @@ addEventListener('pushsubscriptionchange', function (event) {
     /** @type {Promise<PushSubscriptionOptionsInit>} */
     const options = event.oldSubscription
         ? Promise.resolve(event.oldSubscription.options)
-        : fetch('/api/push/vapid-public')
+        : fetch(BASE + '/api/push/vapid-public')
             .then(function (r) { return r.json(); })
             .then(function (data) {
                 if (!isVapidPublicKeyResponse(data)) {
@@ -172,7 +176,7 @@ addEventListener('pushsubscriptionchange', function (event) {
         options
             .then(function (opts) { return registration.pushManager.subscribe(opts); })
             .then(function (newSub) {
-                return fetch('/api/push/subscribe', {
+                return fetch(BASE + '/api/push/subscribe', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(newSub.toJSON()),

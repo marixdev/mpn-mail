@@ -107,23 +107,23 @@ img[data-blocked-src] {
   height: 34px !important;
   min-width: 34px;
   max-width: 100%;
-  background: #f0e9e2;
-  border: 1px dashed #c9bfb4;
+  background: #ebf2ef;
+  border: 1px dashed #c8d0cc;
   border-radius: 4px;
 }
 @media (prefers-color-scheme: dark) {
-  img[data-blocked-src] { background: #2a251f; border-color: #4a4239; }
+  img[data-blocked-src] { background: #15211c; border-color: #2f3b35; }
 }
 table { max-width: 100%; }
-a { color: #0e9384; }
+a { color: #007c3f; }
 pre, code { white-space: pre-wrap; word-break: break-word; font-family: ui-monospace, "SF Mono", Consolas, monospace; }
-blockquote { border-left: 3px solid #d7d2cc; margin: 12px 0; padding-left: 14px; color: #6b7280; }
+blockquote { border-left: 3px solid #ccd3d0; margin: 12px 0; padding-left: 14px; color: #5b6660; }
 /* Keep wide content scrollable rather than blowing out the frame width. */
 * { max-width: 100%; }
 @media (prefers-color-scheme: dark) {
-  body { color: #f4efe9; background: #211d18; }
-  a { color: #5eead9; }
-  blockquote { border-left-color: #3a332b; color: #b7afa4; }
+  body { color: #dfe7e3; background: #0b1712; }
+  a { color: #00dd90; }
+  blockquote { border-left-color: #202c26; color: #7e8984; }
 }
 `
 

@@ -42,12 +42,15 @@ function tryParseJSON(raw) {
 }
 
 (function () {
+    // The path the program is mounted on, from the layout (empty when it has its own address).
+    const BASE = (function () { const m = document.querySelector('meta[name="mail-base"]'); return m instanceof HTMLMetaElement ? m.content : ''; })();
+
     /** @type {boolean} Whether the Notification API exists in this browser. */
     const notificationSupported = typeof Notification !== 'undefined';
 
     function startSSE() {
         if (!window.EventSource) return;
-        const es = new EventSource('/events');
+        const es = new EventSource(BASE + '/events');
         es.addEventListener('message', function (e) {
             // EventSource message data is always a string (SSE is a text
             // protocol), but e.data's declared type is `any` (MessageEvent's
@@ -67,7 +70,7 @@ function tryParseJSON(raw) {
             if (notificationSupported && Notification.permission === 'granted') {
                 new Notification('New mail from ' + (parsed.from || 'unknown'), {
                     body: parsed.subject || '(no subject)',
-                    icon: '/assets/icon.png'
+                    icon: BASE + '/assets/icon.png'
                 });
             }
         });

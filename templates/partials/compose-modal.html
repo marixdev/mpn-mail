@@ -43,7 +43,7 @@
                  fd.set('body', ed.innerText);
              }
              if (this.draftUID) fd.set('draft_uid', this.draftUID);
-             fetch('/api/draft', { method: 'POST', body: fd,
+             fetch('{{$.Base}}/api/draft', { method: 'POST', body: fd,
                  headers: (() => { const tok = (document.getElementById('app-token')||{}).dataset?.token||''; return tok ? {'Authorization':'Bearer '+tok} : {}; })()
              })
              .then(r => r.json())
@@ -123,7 +123,7 @@
             <form id="compose-form"
                   style="display:flex;flex-direction:column;flex:1;"
                   enctype="multipart/form-data"
-                  hx-post="/api/compose"
+                  hx-post="{{$.Base}}/api/compose"
                   hx-swap="none"
                   hx-encoding="multipart/form-data"
                   @htmx:before-request="
@@ -167,7 +167,7 @@
                         this.acQuery = q;
                         if (q.length < 2) { this.acResults = []; this.acOpen = false; return; }
                         const tok = (document.getElementById('app-token') || {}).dataset?.token || '';
-                        fetch('/api/autocomplete?q=' + encodeURIComponent(q), {
+                        fetch('{{$.Base}}/api/autocomplete?q=' + encodeURIComponent(q), {
                             headers: tok ? {'Authorization': 'Bearer ' + tok} : {}
                         }).then(r=>r.json()).then(data => {
                             this.acResults = data || [];

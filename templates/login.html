@@ -2,8 +2,8 @@
     <div class="login-card">
         <!-- Logo -->
         <div class="login-logo">
-            <img src="/assets/lilmail-favicon.svg" alt="" class="login-logo-img" aria-hidden="true">
-            <span class="login-logo-word">{{T .Lang "brand"}}</span>
+            <img src="{{$.Base}}/assets/lilmail-favicon.svg" alt="" class="login-logo-img" aria-hidden="true">
+            <span class="login-logo-word"></span>
         </div>
 
         {{if .Error}}
@@ -16,7 +16,7 @@
         </div>
         {{end}}
 
-        <form action="/login" method="POST">
+        <form action="{{$.Base}}/login" method="POST">
             <div class="form-group">
                 <label for="email" class="form-label">{{T .Lang "login.email"}}</label>
                 <input id="email" name="email" type="email" autocomplete="email" required
@@ -52,12 +52,12 @@
 
         {{if .OAuth2Enabled}}
         <div class="divider">{{T .Lang "login.or"}}</div>
-        <a href="/auth/oauth/login" class="btn-secondary">{{T .Lang "login.oauth"}}</a>
+        <a href="{{$.Base}}/auth/oauth/login" class="btn-secondary">{{T .Lang "login.oauth"}}</a>
         {{end}}
 
         <p class="form-hint">{{T .Lang "login.hint.imap"}}</p>
         <p class="form-hint">
-            <a href="/licenses.txt" target="_blank" rel="noopener">{{T .Lang "login.licenses"}}</a>
+            <a href="{{$.Base}}/licenses.txt" target="_blank" rel="noopener">{{T .Lang "login.licenses"}}</a>
         </p>
     </div>
 

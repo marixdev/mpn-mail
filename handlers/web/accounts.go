@@ -16,6 +16,7 @@ package web
 
 import (
 	"fmt"
+	"lilmail/basepath"
 	"lilmail/config"
 	"lilmail/handlers/api"
 	"log"
@@ -310,7 +311,7 @@ func (h *AccountsHandler) HandleSwitchAccount(c *fiber.Ctx) error {
 		return fiber.ErrInternalServerError
 	}
 
-	return c.Redirect("/inbox")
+	return c.Redirect(basepath.Path(c, "/inbox"))
 }
 
 // HandleSettings renders the settings page with the accounts panel.

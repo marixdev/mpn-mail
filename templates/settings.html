@@ -60,12 +60,12 @@
                         </td>
                         <td>{{.IMAPServer}}</td>
                         <td class="accounts-table__actions">
-                            <form method="POST" action="/api/accounts/{{urlEncode .Email}}/switch"
+                            <form method="POST" action="{{$.Base}}/api/accounts/{{urlEncode .Email}}/switch"
                                   style="display:inline">
                                 <button type="submit" class="btn-action">{{T $.Lang "settings.accounts.switch"}}</button>
                             </form>
                             <button class="btn-action btn-action--danger"
-                                    hx-delete="/api/accounts/{{urlEncode .Email}}"
+                                    hx-delete="{{$.Base}}/api/accounts/{{urlEncode .Email}}"
                                     hx-target="#accounts-list"
                                     hx-swap="outerHTML"
                                     hx-confirm="{{T $.Lang "settings.accounts.removeconfirm" .Email}}">
@@ -155,12 +155,12 @@
         <section class="settings-section">
             <h2 class="settings-section__title">{{T .Lang "settings.about.title"}}</h2>
             <p class="settings-section__desc">
-                {{T .Lang "settings.about.desc"}}<a href="/licenses.txt" target="_blank" rel="noopener">{{T .Lang "login.licenses"}}</a>.
+                {{T .Lang "settings.about.desc"}}<a href="{{$.Base}}/licenses.txt" target="_blank" rel="noopener">{{T .Lang "login.licenses"}}</a>.
             </p>
         </section>
 
         <div class="settings-back">
-            <a href="/inbox" class="btn-secondary">{{T .Lang "settings.backinbox"}}</a>
+            <a href="{{$.Base}}/inbox" class="btn-secondary">{{T .Lang "settings.backinbox"}}</a>
         </div>
     </div>
 </div>
@@ -238,7 +238,7 @@ function addAccountForm() {
             this.loading = true;
             this.errorMsg = '';
             var token = document.getElementById('app-token') ? document.getElementById('app-token').dataset.token : '';
-            fetch('/api/accounts', {
+            fetch('{{$.Base}}/api/accounts', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

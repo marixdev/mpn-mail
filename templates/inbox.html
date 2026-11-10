@@ -30,7 +30,7 @@
 
         <nav class="sidebar__nav" x-data="{ foldersOpen: true }">
             {{if caldavEnabled}}
-            <a href="/calendar"
+            <a href="{{$.Base}}/calendar"
                class="nav-item">
                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -51,8 +51,8 @@
             <div x-show="foldersOpen" class="nav-tree">
             {{range .Folders}}
             {{if eq .Name "INBOX"}}
-            <a href="/folder/INBOX"
-               hx-get="/api/folder/INBOX/emails"
+            <a href="{{$.Base}}/folder/INBOX"
+               hx-get="{{$.Base}}/api/folder/INBOX/emails"
                hx-target="#email-list-inner"
                hx-swap="innerHTML"
                hx-indicator="#list-spinner"
@@ -72,8 +72,8 @@
 
             {{range .Folders}}
             {{if ne .Name "INBOX"}}
-            <a href="/folder/{{.Name | urlEncode}}"
-               hx-get="/api/folder/{{.Name | urlEncode}}/emails"
+            <a href="{{$.Base}}/folder/{{.Name | urlEncode}}"
+               hx-get="{{$.Base}}/api/folder/{{.Name | urlEncode}}/emails"
                hx-target="#email-list-inner"
                hx-swap="innerHTML"
                hx-indicator="#list-spinner"
@@ -102,7 +102,7 @@
             </div>
 
             <!-- Footer nav: Settings (always available) -->
-            <a href="/settings" class="nav-item nav-item--footer">
+            <a href="{{$.Base}}/settings" class="nav-item nav-item--footer">
                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
@@ -127,8 +127,8 @@
                 {{if .UnifiedAvailable}}
                 <div class="list-toolbar__unified">
                     {{if .Unified}}
-                    <a href="/inbox"
-                       hx-get="/api/folder/INBOX/emails"
+                    <a href="{{$.Base}}/inbox"
+                       hx-get="{{$.Base}}/api/folder/INBOX/emails"
                        hx-target="#email-list-inner"
                        hx-swap="innerHTML"
                        hx-indicator="#list-spinner"
@@ -138,8 +138,8 @@
                         {{T .Lang "unified.toggle"}}
                     </a>
                     {{else}}
-                    <a href="/inbox?unified=1"
-                       hx-get="/api/folder/INBOX/emails?unified=1"
+                    <a href="{{$.Base}}/inbox?unified=1"
+                       hx-get="{{$.Base}}/api/folder/INBOX/emails?unified=1"
                        hx-target="#email-list-inner"
                        hx-swap="innerHTML"
                        hx-indicator="#list-spinner"
@@ -209,15 +209,15 @@
                 <div class="bulk-bar__actions">
                     <button class="bulk-bar__btn" title="{{T .Lang "bulk.unread.title"}}"
                             @click="$store.mail.selection.forEach(function(id){
-                                htmx.ajax('PATCH', '/api/email/'+id+'/unread', {swap:'none', headers:{'X-Folder':'{{.CurrentFolder}}'}});
-                            }); setTimeout(function(){ htmx.ajax('GET','/api/folder/{{.CurrentFolder | urlEncode}}/emails',{target:'#email-list-inner',swap:'innerHTML'}); $store.mail.clearSelection(); }, 250)">
+                                htmx.ajax('PATCH', '{{$.Base}}/api/email/'+id+'/unread', {swap:'none', headers:{'X-Folder':'{{.CurrentFolder}}'}});
+                            }); setTimeout(function(){ htmx.ajax('GET','{{$.Base}}/api/folder/{{.CurrentFolder | urlEncode}}/emails',{target:'#email-list-inner',swap:'innerHTML'}); $store.mail.clearSelection(); }, 250)">
                         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
                         {{T .Lang "bulk.unread"}}
                     </button>
                     <button class="bulk-bar__btn bulk-bar__btn--danger" title="{{T .Lang "bulk.delete.title"}}"
                             @click="$store.mail.selection.forEach(function(id){
-                                htmx.ajax('DELETE', '/api/email/'+id, {swap:'none', headers:{'X-Folder':'{{.CurrentFolder}}'}});
-                            }); setTimeout(function(){ htmx.ajax('GET','/api/folder/{{.CurrentFolder | urlEncode}}/emails',{target:'#email-list-inner',swap:'innerHTML'}); $store.mail.clearSelection(); showEmailViewer=false; }, 250)">
+                                htmx.ajax('DELETE', '{{$.Base}}/api/email/'+id, {swap:'none', headers:{'X-Folder':'{{.CurrentFolder}}'}});
+                            }); setTimeout(function(){ htmx.ajax('GET','{{$.Base}}/api/folder/{{.CurrentFolder | urlEncode}}/emails',{target:'#email-list-inner',swap:'innerHTML'}); $store.mail.clearSelection(); showEmailViewer=false; }, 250)">
                         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
                         {{T .Lang "bulk.delete"}}
                     </button>
@@ -334,12 +334,12 @@ document.addEventListener('DOMContentLoaded', function() {
         <div class="email-row{{if $unread}} is-unread{{end}}"
              @click="if({{$thread.Count}} > 1) { open = !open } else {
                  showEmailViewer = true;
-                 htmx.ajax('GET', '/api/email/{{$latest.ID}}',
+                 htmx.ajax('GET', '{{$.Base}}/api/email/{{$latest.ID}}',
                      {target:'#email-viewer-pane', swap:'innerHTML',
                       headers:{'X-Folder':'{{$.CurrentFolder}}','Authorization':'Bearer {{$.Token}}'{{if $latest.AccountEmail}},'X-Account-Email':'{{$latest.AccountEmail}}'{{end}}
                       }});
                  if(window.innerWidth < 1024) {
-                     htmx.ajax('GET', '/api/email/{{$latest.ID}}',
+                     htmx.ajax('GET', '{{$.Base}}/api/email/{{$latest.ID}}',
                          {target:'#email-viewer-pane-mobile', swap:'innerHTML',
                           headers:{'X-Folder':'{{$.CurrentFolder}}','Authorization':'Bearer {{$.Token}}'{{if $latest.AccountEmail}},'X-Account-Email':'{{$latest.AccountEmail}}'{{end}}
                           }});
@@ -395,14 +395,14 @@ document.addEventListener('DOMContentLoaded', function() {
             {{$mUnread := true}}
             {{range $m.Flags}}{{if eq . "\\Seen"}}{{$mUnread = false}}{{end}}{{end}}
             <div class="thread-msg"
-                 hx-get="/api/email/{{$m.ID}}"
+                 hx-get="{{$.Base}}/api/email/{{$m.ID}}"
                  hx-target="#email-viewer-pane"
                  hx-swap="innerHTML"
                  hx-headers='{"X-Folder": "{{$.CurrentFolder}}", "Authorization": "Bearer {{$.Token}}"{{if $m.AccountEmail}}, "X-Account-Email": "{{$m.AccountEmail}}"{{end}}}'
                  hx-indicator="#list-spinner"
                  @click="showEmailViewer = true;
                          if(window.innerWidth < 1024) {
-                             htmx.ajax('GET', '/api/email/{{$m.ID}}',
+                             htmx.ajax('GET', '{{$.Base}}/api/email/{{$m.ID}}',
                                  {target:'#email-viewer-pane-mobile', swap:'innerHTML',
                                   headers:{'X-Folder':'{{$.CurrentFolder}}','Authorization':'Bearer {{$.Token}}'{{if $m.AccountEmail}},'X-Account-Email':'{{$m.AccountEmail}}'{{end}}
                                   }});
@@ -429,14 +429,14 @@ document.addEventListener('DOMContentLoaded', function() {
     {{$unread := true}}
     {{range .Flags}}{{if eq . "\\Seen"}}{{$unread = false}}{{end}}{{end}}
     <div class="email-row{{if $unread}} is-unread{{end}}"
-         hx-get="/api/email/{{.ID}}"
+         hx-get="{{$.Base}}/api/email/{{.ID}}"
          hx-target="#email-viewer-pane"
          hx-swap="innerHTML"
          hx-headers='{"X-Folder": "{{$.CurrentFolder}}", "Authorization": "Bearer {{$.Token}}"{{if .AccountEmail}}, "X-Account-Email": "{{.AccountEmail}}"{{end}}}'
          hx-indicator="#list-spinner"
          @click="showEmailViewer = true;
                  if(window.innerWidth < 1024) {
-                     htmx.ajax('GET', '/api/email/{{.ID}}',
+                     htmx.ajax('GET', '{{$.Base}}/api/email/{{.ID}}',
                          {target:'#email-viewer-pane-mobile', swap:'innerHTML',
                           headers:{'X-Folder':'{{$.CurrentFolder}}','Authorization':'Bearer {{$.Token}}'{{if .AccountEmail}},'X-Account-Email':'{{.AccountEmail}}'{{end}}
                           }});

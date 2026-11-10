@@ -3,8 +3,7 @@ package i18n
 // enMessages holds the English strings. Keep keys in sync with viMessages;
 // any key missing here falls back to the Vietnamese default (see T).
 var enMessages = map[string]string{
-	// Brand / chrome
-	"brand":              "Mail",
+	// chrome
 	"app.description":    "A lightweight webmail client for your IMAP/SMTP mailbox.",
 	"nav.inbox.aria":     "Mail — go to inbox",
 	"sidebar.toggle":     "Toggle sidebar",

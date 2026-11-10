@@ -5,21 +5,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{if .Title}}{{.Title}} — {{T .Lang "brand"}}{{else}}{{T .Lang "brand"}}{{end}}</title>
     <meta name="description" content="{{T .Lang "app.description"}}">
-    <meta name="theme-color" content="#14B8A6">
+    <meta name="theme-color" content="#fcfefd" media="(prefers-color-scheme: light)">
+    <meta name="theme-color" content="#0b1712" media="(prefers-color-scheme: dark)">
     <meta name="color-scheme" content="light dark">
+    <!-- The path the program is mounted on (empty when it has its own address); the scripts read it. -->
+    <meta name="mail-base" content="{{$.Base}}">
 
     <!-- Favicons / app icons -->
-    <link rel="icon" type="image/svg+xml" href="/assets/lilmail-favicon.svg">
-    <link rel="icon" type="image/png" sizes="32x32" href="/assets/icon-32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="/assets/icon-16.png">
-    <link rel="apple-touch-icon" sizes="180x180" href="/assets/icon-180.png">
-    <link rel="manifest" href="/assets/site.webmanifest">
+    <link rel="icon" type="image/svg+xml" href="{{$.Base}}/assets/lilmail-favicon.svg">
+    <link rel="icon" type="image/png" sizes="32x32" href="{{$.Base}}/assets/icon-32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="{{$.Base}}/assets/icon-16.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="{{$.Base}}/assets/icon-180.png">
+    <link rel="manifest" href="{{$.Base}}/assets/site.webmanifest">
 
-    <link rel="stylesheet" href="/assets/css/mail.css">
+    <link rel="stylesheet" href="{{$.Base}}/assets/css/mail.css">
     <!-- HTMX -->
-    <script src="/assets/vendor/htmx.min.js"></script>
+    <script src="{{$.Base}}/assets/vendor/htmx.min.js"></script>
     <!-- Alpine.js -->
-    <script defer src="/assets/vendor/alpine.min.js"></script>
+    <script defer src="{{$.Base}}/assets/vendor/alpine.min.js"></script>
 </head>
 <body>
 
@@ -38,8 +41,8 @@
     </button>
 
     <!-- Logo -->
-    <a href="/inbox" class="topbar__logo" aria-label="{{T .Lang "nav.inbox.aria"}}">
-        <img src="/assets/lilmail-favicon.svg" alt="" class="topbar__logo-img" aria-hidden="true">
+    <a href="{{$.Base}}/inbox" class="topbar__logo" aria-label="{{T .Lang "nav.inbox.aria"}}">
+        <img src="{{$.Base}}/assets/lilmail-favicon.svg" alt="" class="topbar__logo-img" aria-hidden="true">
         <span class="topbar__logo-word">{{T .Lang "brand"}}</span>
     </a>
 
@@ -52,7 +55,7 @@
                class="topbar__search-input"
                aria-label="{{T .Lang "search.aria"}}"
                name="q"
-               hx-get="/api/search"
+               hx-get="{{$.Base}}/api/search"
                hx-trigger="search, keyup changed delay:500ms"
                hx-target="#email-list-inner"
                hx-swap="innerHTML"
@@ -62,7 +65,7 @@
     <!-- Account -->
     <div class="topbar__account">
         <span class="topbar__username">{{.Username}}</span>
-        <a href="/settings" class="topbar__settings" title="{{T .Lang "settings"}}">
+        <a href="{{$.Base}}/settings" class="topbar__settings" title="{{T .Lang "settings"}}">
             <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                     d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
@@ -70,7 +73,7 @@
             </svg>
         </a>
         <button type="button" class="topbar__logout"
-                hx-post="/logout"
+                hx-post="{{$.Base}}/logout"
                 hx-swap="none"
                 title="{{T .Lang "signout"}}">{{T .Lang "signout"}}</button>
     </div>
@@ -125,16 +128,16 @@
 
 {{if notificationsEnabled}}
 {{if .Username}}
-<script src="/assets/js/notifications.js"></script>
+<script src="{{$.Base}}/assets/js/notifications.js"></script>
 {{end}}
 {{end}}
 
 {{if webPushEnabled}}
 {{if .Username}}
-<script src="/assets/js/push.js"></script>
+<script src="{{$.Base}}/assets/js/push.js"></script>
 {{end}}
 {{end}}
 
-<script src="/assets/js/app.js"></script>
+<script src="{{$.Base}}/assets/js/app.js"></script>
 </body>
 </html>

@@ -25,6 +25,9 @@ function isVapidPublicKeyResponse(v) {
 }
 
 (function () {
+    // The path the program is mounted on, from the layout (empty when it has its own address).
+    const BASE = (function () { const m = document.querySelector('meta[name="mail-base"]'); return m instanceof HTMLMetaElement ? m.content : ''; })();
+
     /**
      * Reads the bearer token carried in the DOM for JS fetch calls.
      * @returns {string}
@@ -61,10 +64,10 @@ function isVapidPublicKeyResponse(v) {
         if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
             return Promise.reject(new Error('Push not supported in this browser'));
         }
-        return navigator.serviceWorker.register('/sw.js', { scope: '/' })
+        return navigator.serviceWorker.register(BASE + '/sw.js', { scope: BASE + '/' })
             .then(function (reg) {
                 // Fetch VAPID public key.
-                return fetch('/api/push/vapid-public')
+                return fetch(BASE + '/api/push/vapid-public')
                     .then(function (r) { return r.json(); })
                     .then(function (data) {
                         if (!isVapidPublicKeyResponse(data)) {
@@ -80,7 +83,7 @@ function isVapidPublicKeyResponse(v) {
             .then(function (sub) {
                 const subJson = sub.toJSON();
                 // POST the subscription to the server.
-                return fetch('/api/push/subscribe', {
+                return fetch(BASE + '/api/push/subscribe', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -107,7 +110,7 @@ function isVapidPublicKeyResponse(v) {
                 if (!sub) return;
                 const endpoint = sub.endpoint;
                 return sub.unsubscribe().then(function () {
-                    return fetch('/api/push/subscribe', {
+                    return fetch(BASE + '/api/push/subscribe', {
                         method: 'DELETE',
                         headers: {
                             'Content-Type': 'application/json',
@@ -144,6 +147,6 @@ function isVapidPublicKeyResponse(v) {
     // Fire-and-forget: registration failures here have nothing to surface to —
     // there is no UI on screen yet to show an error in.
     if ('serviceWorker' in navigator) {
-        void navigator.serviceWorker.register('/sw.js', { scope: '/' });
+        void navigator.serviceWorker.register(BASE + '/sw.js', { scope: BASE + '/' });
     }
 })();

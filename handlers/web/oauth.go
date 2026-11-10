@@ -3,6 +3,7 @@ package web
 
 import (
 	"fmt"
+	"lilmail/basepath"
 	"lilmail/handlers/api"
 	"log"
 	"path/filepath"
@@ -135,7 +136,7 @@ func (h *AuthHandler) HandleOAuthCallback(c *fiber.Ctx) error {
 		}
 	}
 
-	return c.Redirect("/inbox")
+	return c.Redirect(basepath.Path(c, "/inbox"))
 }
 
 // oauthError renders the login page with an error, keeping the OAuth2 button.

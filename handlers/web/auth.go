@@ -3,6 +3,7 @@ package web
 
 import (
 	"fmt"
+	"lilmail/basepath"
 	"lilmail/config"
 	"lilmail/handlers/api"
 	"lilmail/utils"
@@ -38,7 +39,7 @@ func (h *AuthHandler) ShowLogin(c *fiber.Ctx) error {
 	if err == nil {
 		authenticated := sess.Get("authenticated")
 		if authenticated == true {
-			return c.Redirect("/inbox")
+			return c.Redirect(basepath.Path(c, "/inbox"))
 		}
 	}
 	return c.Render("login", fiber.Map{
@@ -133,7 +134,7 @@ func (h *AuthHandler) HandleLogin(c *fiber.Ctx) error {
 		log.Printf("auth: fetchInitialData for %s: %v", username, err)
 	}
 
-	return c.Redirect("/inbox")
+	return c.Redirect(basepath.Path(c, "/inbox"))
 }
 
 // HandleLogout processes user logout. Must be called via POST to prevent
@@ -143,7 +144,7 @@ func (h *AuthHandler) HandleLogin(c *fiber.Ctx) error {
 func (h *AuthHandler) HandleLogout(c *fiber.Ctx) error {
 	sess, err := h.store.Get(c)
 	if err != nil {
-		return c.Redirect("/login")
+		return c.Redirect(basepath.Path(c, "/login"))
 	}
 
 	username := sess.Get("username")
@@ -164,10 +165,10 @@ func (h *AuthHandler) HandleLogout(c *fiber.Ctx) error {
 	// HTMX callers: use the HX-Redirect response header so the client performs
 	// a full-page navigation without swapping content into an element.
 	if c.Get("HX-Request") != "" {
-		c.Set("HX-Redirect", "/login")
+		c.Set("HX-Redirect", basepath.Path(c, "/login"))
 		return c.SendStatus(fiber.StatusOK)
 	}
-	return c.Redirect("/login")
+	return c.Redirect(basepath.Path(c, "/login"))
 }
 
 func (h *AuthHandler) ensureUserCacheFolder(path string) error {
@@ -344,7 +345,7 @@ func (h *AuthHandler) HandleDemoLogin(c *fiber.Ctx) error {
 		return c.Status(500).SendString("Failed to create session")
 	}
 
-	return c.Redirect("/inbox")
+	return c.Redirect(basepath.Path(c, "/inbox"))
 }
 
 // CreateIMAPClientForAccount opens an IMAP connection for a stored additional

@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"html/template"
 	"io/fs"
+	"lilmail/basepath"
 	"lilmail/config"
 	"lilmail/handlers/ai"
 	"lilmail/handlers/api"
@@ -16,7 +17,6 @@ import (
 	"log"
 	"net"
 	"net/http"
-	"net/url"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -33,7 +33,6 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/fiber/v2/middleware/recover"
 	"github.com/gofiber/fiber/v2/middleware/session"
-	"github.com/gofiber/template/html/v2"
 )
 
 // Version is set at build time via -ldflags "-X main.Version=x.y.z".
@@ -203,94 +202,8 @@ func main() {
 		})
 	}
 
-	// Initialize template engine with embedded filesystem
-	tplSub, err := fs.Sub(templatesFS, "templates")
-	if err != nil {
-		log.Fatal("Failed to sub templates FS:", err)
-	}
-	engine := html.NewFileSystem(http.FS(tplSub), ".html")
-
-	// String manipulation functions
-	engine.AddFunc("split", strings.Split)
-	engine.AddFunc("join", strings.Join)
-	engine.AddFunc("lower", strings.ToLower)
-	engine.AddFunc("upper", strings.ToUpper)
-	engine.AddFunc("title", titleCase)
-	engine.AddFunc("trim", strings.TrimSpace)
-	engine.AddFunc("hasPrefix", strings.HasPrefix)
-	engine.AddFunc("urlEncode", url.QueryEscape)
-
-	// T is the i18n lookup used from every template as {{T $.Lang "key"}}.
-	// $.Lang is put on each render by the language middleware below.
-	engine.AddFunc("T", i18n.T)
-
-	// folderLabel localizes well-known IMAP folder names: {{folderLabel $.Lang .Name}}.
-	engine.AddFunc("folderLabel", i18n.FolderLabel)
-
-	// linkify HTML-escapes a plain-text body and turns bare URLs and email
-	// addresses into clickable links. Newlines are preserved by the
-	// white-space: pre-wrap CSS on the container, so we only inject anchors.
-	engine.AddFunc("linkify", linkifyText)
-
-	// Date formatting function
-	engine.AddFunc("formatDate", func(t time.Time) string {
-		return t.Format("Jan 02, 2006 15:04")
-	})
-
-	// File size formatting function. Accepts int (models.Attachment.Size) — the
-	// template passes an int, and text/template will not coerce int -> int64.
-	engine.AddFunc("formatSize", func(sizeInt int) string {
-		size := int64(sizeInt)
-		const unit = 1024
-		if size < unit {
-			return fmt.Sprintf("%d B", size)
-		}
-		div, exp := int64(unit), 0
-		for n := size / unit; n >= unit; n /= unit {
-			div *= unit
-			exp++
-		}
-		return fmt.Sprintf("%.1f %cB", float64(size)/float64(div), "KMGTPE"[exp])
-	})
-
-	// initial returns the first letter (unicode-safe, upper-cased) of the
-	// preferred name, falling back to the email, for avatar bubbles.
-	engine.AddFunc("initial", func(name, email string) string {
-		s := strings.TrimSpace(name)
-		if s == "" {
-			s = strings.TrimSpace(email)
-		}
-		for _, r := range s {
-			return strings.ToUpper(string(r))
-		}
-		return "?"
-	})
-
-	// caldavEnabled is a zero-argument template func so templates can show/hide
-	// calendar navigation without threading a flag through every handler.
-	engine.AddFunc("caldavEnabled", func() bool {
-		return config.CalDAV.Enabled
-	})
-
-	// notificationsEnabled is a zero-argument template func so templates can
-	// conditionally emit the SSE client script.  It is always registered (so
-	// the template parse step never fails) but returns false by default.
-	engine.AddFunc("notificationsEnabled", func() bool {
-		return config.Notifications.Enabled
-	})
-
-	// webPushEnabled tells templates whether to register the service worker and
-	// expose the "Enable push notifications" button.
-	engine.AddFunc("webPushEnabled", func() bool {
-		return config.Notifications.Enabled && config.Notifications.WebPush
-	})
-
-	// accountsEnabled tells templates whether to show the account-switcher UI.
-	engine.AddFunc("accountsEnabled", func() bool {
-		return config.Accounts.Enabled
-	})
-
-	engine.Reload(false) // embedded — no disk reload needed
+	// Template engine with the embedded templates and their functions (engine.go).
+	engine := newEngine(config)
 
 	// Initialize Fiber with template engine
 	app := fiber.New(fiber.Config{
@@ -321,6 +234,10 @@ func main() {
 	// Add middleware
 	app.Use(recover.New()) // Recover from panics
 	app.Use(logger.New())  // Request logging
+
+	// The path the reverse proxy cut off (X-Forwarded-Prefix, such as /webmail), for this request: given to every template as .Base,
+	// used by every redirect, and the cookies are moved under it. Without the header nothing changes.
+	app.Use(basepath.Middleware())
 
 	// Apply security headers on every response.
 	app.Use(func(c *fiber.Ctx) error {
@@ -354,6 +271,9 @@ func main() {
 		return c.Next()
 	})
 
+	// The web manifest names its start page, scope and icons by absolute path, so it is made for the prefix of the request.
+	app.Get("/assets/site.webmanifest", serveManifest)
+
 	// Serve embedded assets
 	assetsSub, err := fs.Sub(assetsFS, "assets")
 	if err != nil {
@@ -376,7 +296,7 @@ func main() {
 		}
 		c.Set("Content-Type", "application/javascript; charset=utf-8")
 		c.Set("Cache-Control", "no-cache")
-		c.Set("Service-Worker-Allowed", "/") // Allow SW to control the full origin.
+		c.Set("Service-Worker-Allowed", basepath.Path(c, "/")) // The worker may control the path the program is mounted on (the whole origin when there is no prefix).
 		return c.Send(swBytes)
 	})
 
@@ -465,10 +385,10 @@ func main() {
 		sess, err := store.Get(c)
 		if err == nil {
 			if v := sess.Get("authenticated"); v == true {
-				return c.Redirect("/inbox")
+				return c.Redirect(basepath.Path(c, "/inbox"))
 			}
 		}
-		return c.Redirect("/login")
+		return c.Redirect(basepath.Path(c, "/login"))
 	})
 
 	// CSRF middleware for all web (cookie-session) protected routes.

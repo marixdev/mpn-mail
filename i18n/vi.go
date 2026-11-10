@@ -3,8 +3,7 @@ package i18n
 // viMessages holds the Vietnamese strings. Keys are grouped by surface
 // (login., nav., list., …). Keep them in sync with enMessages.
 var viMessages = map[string]string{
-	// Brand / chrome
-	"brand":              "Thư",
+	// / chrome
 	"app.description":    "Trình đọc thư nhẹ, kết nối hộp thư IMAP/SMTP của bạn.",
 	"nav.inbox.aria":     "Thư — về hộp thư đến",
 	"sidebar.toggle":     "Bật/tắt thanh bên",

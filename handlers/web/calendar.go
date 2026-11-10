@@ -8,6 +8,7 @@ package web
 import (
 	"context"
 	"fmt"
+	"lilmail/basepath"
 	"lilmail/config"
 	"lilmail/handlers/api"
 	"lilmail/models"
@@ -253,7 +254,7 @@ func (h *CalendarHandler) HandleCreateEvent(c *fiber.Ctx) error {
 	}
 
 	// Redirect to month view after successful creation.
-	return c.Redirect(fmt.Sprintf("/calendar?year=%d&month=%d", startTime.Year(), int(startTime.Month())))
+	return c.Redirect(basepath.Path(c, fmt.Sprintf("/calendar?year=%d&month=%d", startTime.Year(), int(startTime.Month()))))
 }
 
 // HandleRSVP sends an iTIP REPLY email to the event organiser.  It builds a

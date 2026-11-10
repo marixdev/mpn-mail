@@ -9,6 +9,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"lilmail/basepath"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
@@ -178,12 +179,12 @@ func SessionMiddleware(store *session.Store) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		sess, err := store.Get(c)
 		if err != nil {
-			return c.Redirect("/login")
+			return c.Redirect(basepath.Path(c, "/login"))
 		}
 
 		authenticated := sess.Get("authenticated")
 		if authenticated == nil || authenticated != true {
-			return c.Redirect("/login")
+			return c.Redirect(basepath.Path(c, "/login"))
 		}
 
 		username := sess.Get("username")

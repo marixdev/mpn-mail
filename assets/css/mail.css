@@ -7,57 +7,56 @@
    Design tokens
 --------------------------------------------------------- */
 :root {
-  /* ---- LilMail brand palette ----
-     PRIMARY  Coral  #F2674E  → logo, primary buttons, key actions
-     ACCENT   Teal   #14B8A6  → links, new-mail, highlights, unread dots
-     TEXT     Ink    #1F2A37 / Slate #6B7280
-     SURFACES Paper  #FBF7F4 (app bg) / warm white cards / Mist #EEE6E0 borders
-  */
+  /* ---- Colours: the same tokens as the Mini Panel (internal/web/assets/input.css), all on hue 165 ----
+     Every colour of the interface is read from this block and the dark one below, so a change of palette is a change
+     here and nowhere else. The accent is the green of the panel's mark; text on top of it is --c-on-accent, which is
+     white on the light theme and near-black on the dark one, because the dark theme's green is the lighter of the two. */
 
-  /* Surfaces — warm "paper" tones */
-  --c-bg:          #F8FAFC;   /* app background (slate-50, matches the panel) */
-  --c-surface:     #FFFFFF;   /* white cards/panes */
-  --c-surface-alt: #F1F5F9;   /* subtle tint for hovers/strips (slate-100) */
-  --c-surface-hover:#EEF2F7;
-  --c-border:      #E5E7EB;   /* dividers / input borders (slate-200) */
-  --c-border-soft: #EEF1F4;   /* a touch lighter */
+  /* Surfaces */
+  --c-bg:          oklch(97.5% .005 165);   /* page background */
+  --c-surface:     oklch(99.5% .002 165);   /* cards and panes */
+  --c-surface-alt: oklch(95.5% .008 165);   /* hovers, strips, muted areas */
+  --c-surface-hover:oklch(93.5% .01 165);
+  --c-border:      oklch(91% .008 165);
+  --c-border-soft: oklch(94% .006 165);
 
   /* Text */
-  --c-text:        #1F2A37;   /* Ink */
-  --c-text-2:      #6B7280;   /* Slate */
-  --c-text-3:      #9AA1AB;   /* lighter slate */
-  --c-text-inv:    #ffffff;
+  --c-text:        oklch(13% .02 165);
+  --c-text-2:      oklch(50% .015 165);
+  --c-text-3:      oklch(60% .012 165);
+  --c-text-inv:    oklch(98.5% 0 0);
+  --c-on-accent:   oklch(98.5% 0 0);        /* text on --c-accent and --c-success */
+  --c-on-warn:     oklch(20.5% .02 165);    /* text on --c-warn */
 
-  /* Accent — Teal (primary brand, matches the panel) */
-  --c-accent:      #14B8A6;
-  --c-accent-dark: #0E9384;
-  --c-accent-soft: #DCF5F1;
-  --c-accent-text: #0B6B60;
+  /* Accent: the panel's primary colour */
+  --c-accent:      oklch(55% .22 165);
+  --c-accent-dark: oklch(48% .2 165);
+  --c-accent-soft: oklch(94.5% .045 165);
+  --c-accent-text: oklch(40% .15 165);
 
-  /* Link / highlight — Teal */
-  --c-link:        #14B8A6;
-  --c-link-dark:   #0E9384;
-  --c-link-soft:   #DCF5F1;
-  --c-link-text:   #0B6B60;
-  --c-highlight:   #14B8A6;
+  /* Links and highlights follow the accent */
+  --c-link:        var(--c-accent);
+  --c-link-dark:   var(--c-accent-dark);
+  --c-link-soft:   var(--c-accent-soft);
+  --c-link-text:   var(--c-accent-text);
+  --c-highlight:   var(--c-accent);
 
-  /* Semantic — warm-harmonised */
-  --c-danger:      #E0533A;
-  --c-danger-soft: #FCEAE5;
-  --c-danger-text: #9C2B16;
-  --c-success:     #15A38C;
-  --c-success-soft:#DEF4F0;
-  --c-success-text:#0B6B5C;
-  --c-warn:        #E08A2B;
-  --c-warn-soft:   #FBEFDD;
-  --c-warn-text:   #8A4E0F;
+  /* Semantic */
+  --c-danger:      oklch(57.7% .245 27);
+  --c-danger-soft: oklch(95% .03 27);
+  --c-danger-text: oklch(42% .17 27);
+  --c-success:     oklch(62% .2 145);
+  --c-success-soft:oklch(95% .05 145);
+  --c-success-text:oklch(40% .12 145);
+  --c-warn:        oklch(75% .18 75);
+  --c-warn-soft:   oklch(96% .05 80);
+  --c-warn-text:   oklch(42% .1 70);
 
-  /* Avatar colours (cycle by initial) — warm, harmonised set */
+  /* Avatar colours (cycle by initial). The two greens are the panel's hue; the rest stay varied on purpose. */
   --av-a: #F2674E; --av-b: #E8833C; --av-c: #D9587A;
-  --av-d: #E0A52B; --av-e: #14B8A6; --av-f: #4E94C4;
-  --av-g: #D9543E; --av-h: #0E9384; --av-i: #E8763C;
+  --av-d: #E0A52B; --av-e: oklch(60% .15 165); --av-f: #4E94C4;
+  --av-g: #D9543E; --av-h: oklch(50% .14 165); --av-i: #E8763C;
   --av-j: #9DA84E;
-
   /* Layout */
   --topbar-h: 52px;
   --sidebar-w: 220px;
@@ -88,39 +87,34 @@
 --------------------------------------------------------- */
 @media (prefers-color-scheme: dark) {
   :root {
-    /* Warm-charcoal surfaces that keep the coral/teal identity in the dark */
-    --c-bg:          #0F172A;
-    --c-surface:     #1E293B;
-    --c-surface-alt: #243245;
-    --c-surface-hover:#2C3A4F;
-    --c-border:      #334155;
-    --c-border-soft: #273449;
+    /* The panel's dark palette: near-black page, slightly lighter cards, the brighter green as accent */
+    --c-bg:          oklch(7.5% .02 165);
+    --c-surface:     oklch(19% .02 165);
+    --c-surface-alt: oklch(23.5% .02 165);
+    --c-surface-hover:oklch(27% .02 165);
+    --c-border:      oklch(28% .02 165);
+    --c-border-soft: oklch(24% .02 165);
 
-    --c-text:        #F4EFE9;
-    --c-text-2:      #B7AFA4;
-    --c-text-3:      #847C71;
+    --c-text:        oklch(92% .01 165);
+    --c-text-2:      oklch(62% .015 165);
+    --c-text-3:      oklch(52% .015 165);
+    --c-on-accent:   oklch(7.5% .02 165);
+    --c-on-warn:     oklch(7.5% .02 165);
 
-    --c-accent:      #2DD4BF;
-    --c-accent-dark: #5EEAD9;
-    --c-accent-soft: #134E4A;
-    --c-accent-text: #99F6E4;
+    --c-accent:      oklch(70% .24 165);
+    --c-accent-dark: oklch(77% .22 165);
+    --c-accent-soft: oklch(28% .07 165);
+    --c-accent-text: oklch(85% .17 165);
 
-    --c-link:        #2DD4BF;
-    --c-link-dark:   #5EEAD9;
-    --c-link-soft:   #163A36;
-    --c-link-text:   #7FE6D9;
-    --c-highlight:   #2DD4BF;
-
-    --c-danger:      #F08368;
-    --c-danger-soft: #3A1C15;
-    --c-danger-text: #F5B3A2;
-    --c-success:     #34D3BC;
-    --c-success-soft:#10302B;
-    --c-success-text:#86E8D8;
-    --c-warn:        #ECA85B;
-    --c-warn-soft:   #33240F;
-    --c-warn-text:   #F3CE96;
-
+    --c-danger:      oklch(63% .235 27);
+    --c-danger-soft: oklch(25% .06 27);
+    --c-danger-text: oklch(80% .1 27);
+    --c-success:     oklch(70% .19 145);
+    --c-success-soft:oklch(26% .06 145);
+    --c-success-text:oklch(85% .12 145);
+    --c-warn:        oklch(80% .17 75);
+    --c-warn-soft:   oklch(27% .05 75);
+    --c-warn-text:   oklch(87% .1 80);
     --shadow-sm: 0 1px 2px rgba(0,0,0,.35);
     --shadow-md: 0 4px 12px rgba(0,0,0,.45);
     --shadow-lg: 0 8px 32px rgba(0,0,0,.55);
@@ -144,7 +138,7 @@ body {
 }
 
 a { color: inherit; text-decoration: none; }
-/* Teal link accent for body content + generic links */
+/* Accent-coloured links in the body of a message and generic links */
 .email-content a,
 .email-body--text a,
 a.link, .text-link { color: var(--c-link); text-decoration: none; }
@@ -338,7 +332,7 @@ input, textarea, select { font-family: inherit; }
   width: 100%;
   padding: 9px 16px;
   background: var(--c-accent);
-  color: white;
+  color: var(--c-on-accent);
   font-size: 13px; font-weight: 600;
   border-radius: var(--r-full);
   box-shadow: var(--shadow-sm);
@@ -376,7 +370,7 @@ input, textarea, select { font-family: inherit; }
 .nav-item__badge {
   font-size: 11px; font-weight: 700;
   background: var(--c-highlight);
-  color: white;
+  color: var(--c-on-accent);
   border-radius: var(--r-full);
   padding: 1px 6px;
   min-width: 20px; text-align: center;
@@ -767,8 +761,8 @@ input, textarea, select { font-family: inherit; }
   transition: filter var(--t-fast);
 }
 .btn-rsvp:hover { filter: brightness(0.92); }
-.btn-rsvp--accept { background: var(--c-success); color: white; }
-.btn-rsvp--tentative { background: var(--c-warn); color: white; }
+.btn-rsvp--accept { background: var(--c-success); color: var(--c-on-accent); }
+.btn-rsvp--tentative { background: var(--c-warn); color: var(--c-on-warn); }
 .btn-rsvp--decline {
   background: var(--c-surface);
   border: 1px solid var(--c-border);
@@ -851,7 +845,7 @@ input, textarea, select { font-family: inherit; }
   font-size: 12px; font-weight: 600;
   border-radius: var(--r-sm);
   background: var(--c-warn);
-  color: #fff;
+  color: var(--c-on-warn);
   transition: filter var(--t-fast);
 }
 .remote-img-banner__btn:hover { filter: brightness(0.94); }
@@ -958,7 +952,7 @@ input, textarea, select { font-family: inherit; }
   display: inline-flex; align-items: center; gap: 6px;
   padding: 7px 18px;
   font-size: 13px; font-weight: 600;
-  background: var(--c-accent); color: white;
+  background: var(--c-accent); color: var(--c-on-accent);
   border-radius: var(--r-full);
   transition: background var(--t-fast), opacity var(--t-fast);
 }
@@ -1092,7 +1086,7 @@ input, textarea, select { font-family: inherit; }
   display: flex; align-items: center; justify-content: center; gap: 6px;
   width: 100%; padding: 10px;
   font-size: 13px; font-weight: 700;
-  background: var(--c-accent); color: white;
+  background: var(--c-accent); color: var(--c-on-accent);
   border-radius: var(--r-sm);
   transition: background var(--t-fast), opacity var(--t-fast);
   letter-spacing: 0.01em;
@@ -1230,7 +1224,7 @@ input, textarea, select { font-family: inherit; }
   border-radius: 50%;
 }
 .cal-cell__num--today {
-  background: var(--c-accent); color: white; font-weight: 700;
+  background: var(--c-accent); color: var(--c-on-accent); font-weight: 700;
 }
 .cal-event-chip {
   display: block;
@@ -1271,7 +1265,7 @@ input, textarea, select { font-family: inherit; }
   color: var(--c-text-2); border-radius: 50%;
   margin-top: 2px;
 }
-.week-col-header__num--today { background: var(--c-accent); color: white; }
+.week-col-header__num--today { background: var(--c-accent); color: var(--c-on-accent); }
 .week-event {
   display: block;
   font-size: 11px; padding: 4px 7px;
@@ -1365,7 +1359,7 @@ input, textarea, select { font-family: inherit; }
 .btn-sm-cancel:hover { background: var(--c-surface-alt); }
 .btn-sm-primary {
   padding: 6px 14px; font-size: 12px; font-weight: 700;
-  background: var(--c-accent); color: white;
+  background: var(--c-accent); color: var(--c-on-accent);
   border-radius: var(--r-sm);
   transition: background var(--t-fast);
 }
@@ -1701,11 +1695,11 @@ input, textarea, select { font-family: inherit; }
 .unified-toggle--active {
   background: var(--c-accent);
   border-color: var(--c-accent-dark);
-  color: #fff;
+  color: var(--c-on-accent);
 }
 .unified-toggle--active:hover {
   background: var(--c-accent-dark);
-  color: #fff;
+  color: var(--c-on-accent);
 }
 
 /* Per-account error indicator dots in toolbar */
@@ -1858,7 +1852,7 @@ input, textarea, select { font-family: inherit; }
   box-shadow: inset 3px 0 0 var(--c-accent);
 }
 
-/* Unread dot — teal "new mail" accent, slightly bigger */
+/* Unread dot — the accent, slightly bigger */
 .email-row__unread-dot {
   width: 6px;
   height: 6px;
@@ -2105,21 +2099,21 @@ input, textarea, select { font-family: inherit; }
 @media (prefers-color-scheme: dark) {
   /* Slightly warmer topbar in dark */
   .topbar {
-    background: #18181e;
-    border-bottom-color: #2a2a35;
+    background: var(--c-surface);
+    border-bottom-color: var(--c-border);
   }
 
   /* Compose header — warm charcoal → coral in dark mode */
   .compose-header {
-    background: linear-gradient(135deg, #1A1510 0%, var(--c-accent-dark) 160%);
+    background: var(--c-surface-alt);
   }
 
   /* Login background */
   .login-page {
     background: radial-gradient(
       ellipse at 50% 30%,
-      color-mix(in srgb, var(--c-accent) 10%, #0f0f11),
-      #0f0f11 70%
+      color-mix(in srgb, var(--c-accent) 10%, var(--c-bg)),
+      var(--c-bg) 70%
     );
   }
 
@@ -2350,7 +2344,7 @@ input, textarea, select { font-family: inherit; }
   opacity: 1;
   background: var(--c-accent);
   border-color: var(--c-accent);
-  color: #fff;
+  color: var(--c-on-accent);
 }
 
 /* Keyboard cursor row */
@@ -2424,12 +2418,12 @@ body[data-density="compact"] .email-row__unread-dot { top: 50%; }
    as the obvious next step (Gmail-class prominence). */
 .rt-btn--primary {
   background: var(--c-accent);
-  color: #fff;
+  color: var(--c-on-accent);
   font-weight: 600;
   padding: 6px 14px;
   box-shadow: var(--shadow-sm);
 }
-.rt-btn--primary:hover { background: var(--c-accent-dark); color: #fff; }
+.rt-btn--primary:hover { background: var(--c-accent-dark); color: var(--c-on-accent); }
 .rt-btn--primary svg { width: 16px; height: 16px; }
 .rt-btn--danger:hover { background: var(--c-danger-soft); color: var(--c-danger); }
 .rt-btn.is-on { color: var(--c-warn); }
