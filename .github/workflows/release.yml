@@ -55,42 +55,12 @@ jobs:
         TAG="${GITHUB_REF_NAME}"
         VERSION="${TAG#v}"
         LDFLAGS="-s -w -X main.Version=${VERSION}"   # strip symbols/DWARF — smaller binary
-        mkdir -p release/mpn-mail
+        mkdir -p release
 
-        # Copy example config into bundle (templates + assets are embedded)
-        cp config.toml.example release/mpn-mail/config.toml.example
-
-        # linux/amd64
-        GOOS=linux GOARCH=amd64 go build -ldflags "${LDFLAGS}" -o release/mpn-mail/mpn-mail .
-        cd release && zip -r "mpn-mail_${VERSION}_linux_amd64.zip" mpn-mail/ && cd ..
-        rm release/mpn-mail/mpn-mail
-
-        # linux/arm64
-        GOOS=linux GOARCH=arm64 go build -ldflags "${LDFLAGS}" -o release/mpn-mail/mpn-mail .
-        cd release && zip -r "mpn-mail_${VERSION}_linux_arm64.zip" mpn-mail/ && cd ..
-        rm release/mpn-mail/mpn-mail
-
-        # darwin/amd64
-        GOOS=darwin GOARCH=amd64 go build -ldflags "${LDFLAGS}" -o release/mpn-mail/mpn-mail .
-        cd release && zip -r "mpn-mail_${VERSION}_darwin_amd64.zip" mpn-mail/ && cd ..
-        rm release/mpn-mail/mpn-mail
-
-        # darwin/arm64 (Apple Silicon)
-        GOOS=darwin GOARCH=arm64 go build -ldflags "${LDFLAGS}" -o release/mpn-mail/mpn-mail .
-        cd release && zip -r "mpn-mail_${VERSION}_darwin_arm64.zip" mpn-mail/ && cd ..
-        rm release/mpn-mail/mpn-mail
-
-        # The bare binary Mini Panel installs. -trimpath and CGO off make it reproducible; the panel pins the
-        # SHA-256 this job writes into SHA256SUMS.
+        # The only file published: the binary Mini Panel installs (linux/amd64). -trimpath and CGO off make it
+        # reproducible; the panel pins the SHA-256 this job writes into SHA256SUMS. release/ stays FLAT, because the
+        # manifest step lists it with `find -maxdepth 1 -type f`.
         CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -trimpath -ldflags "${LDFLAGS}" -o release/mpn-mail_linux_amd64 .
-
-        # Source archive
-        git archive --format=zip HEAD -o "release/mpn-mail_${VERSION}_source.zip"
-
-        # Clean up the staging dir — release/ must be FLAT, because the manifest
-        # step lists it with `find -maxdepth 1 -type f`, while `files: release/*`
-        # would publish a leftover subdirectory's contents uncovered.
-        rm -rf release/mpn-mail
 
         # Exported so the release body can name an asset exactly. Assets are
         # versioned WITHOUT the leading 'v', so a body interpolating
@@ -185,7 +155,7 @@ jobs:
 
           ```sh
           curl -fsSLO https://raw.githubusercontent.com/${{ github.repository }}/${{ github.ref_name }}/scripts/verify.sh
-          bash verify.sh --tag ${{ github.ref_name }} --attest mpn-mail_${{ steps.stage.outputs.version }}_linux_amd64.zip
+          bash verify.sh --tag ${{ github.ref_name }} --attest mpn-mail_linux_amd64
           ```
 
           `verify.sh` fetches `SHA256SUMS`, looks up the exact entry for the

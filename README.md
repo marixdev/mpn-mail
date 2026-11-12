@@ -50,7 +50,7 @@ Tiến trình nhận socket qua biến `LISTEN_FDS` (fd 3). Không có biến n�
 
 ## Bản phát hành
 
-Đẩy tag `v*` sẽ chạy [release.yml](.github/workflows/release.yml). Bản phát hành gồm `mpn-mail_linux_amd64` (tệp chạy mà Mini Panel cài, build bằng `-trimpath`), các gói `mpn-mail_<phiên bản>_<hệ điều hành>_<kiến trúc>.zip`, gói mã nguồn và `SHA256SUMS`. Kiểm tra tệp tải về bằng `scripts/verify.sh --tag vX.Y.Z <tệp>`.
+Đẩy tag `v*` sẽ chạy [release.yml](.github/workflows/release.yml). Bản phát hành chỉ có `mpn-mail_linux_amd64` (tệp chạy mà Mini Panel cài, build bằng `-trimpath`) và `SHA256SUMS`. GitHub tự kèm gói mã nguồn của tag. Kiểm tra tệp tải về bằng `scripts/verify.sh --tag vX.Y.Z <tệp>`.
 
 ## Build
 
