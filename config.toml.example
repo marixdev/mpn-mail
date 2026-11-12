@@ -12,7 +12,7 @@ frame_ancestors = ""
 # add the Secure flag to session cookies. STRONGLY recommended for any
 # internet-facing deployment; set to false only for plain-HTTP local dev.
 secure_cookies = true
-# UI language: "vi" (Vietnamese, the default) or "en" (English). A per-request
+# UI language: "vi" (Vietnamese, the default), "en" (English) or "zh" (Simplified Chinese). A per-request
 # "lang" cookie set by the in-app language switcher overrides this default.
 language = "vi"
 # Exit after this many seconds with no active request or SSE connection. Only

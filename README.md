@@ -6,7 +6,7 @@ Web mail nhẹ cho [Mini Panel](https://github.com/marixdev/mini-panel) (`mpn`).
 
 ## Khác gì so với lilmail
 
-- Giao diện tiếng Việt và tiếng Anh. Mặc định là tiếng Việt, người dùng đổi bằng cookie `lang` hoặc chỉnh `[server] language`. Chuỗi chữ nằm ở `i18n/vi.go` và `i18n/en.go`, template gọi qua `{{T .Lang "khóa"}}`.
+- Giao diện tiếng Việt, tiếng Anh và tiếng Trung giản thể. Mặc định là tiếng Việt, người dùng đổi bằng cookie `lang` hoặc chỉnh `[server] language`. Chuỗi chữ nằm ở `i18n/vi.go`, `i18n/en.go` và `i18n/zh.go`, template gọi qua `{{T .Lang "khóa"}}`.
 - Logo và favicon của Mini Panel, màu xanh lá (hue 165) cùng bảng màu với panel, sáng và tối.
 - Đăng nhập SMTP dùng cả địa chỉ email làm tên đăng nhập, giống IMAP. Bản gốc chỉ gửi phần trước `@`, nên hộp thư ảo kiểu `ten@tenmien` bị từ chối. Máy chủ chỉ nhận tên ngắn thì gọi `SetAuthUsername`.
 - Kết nối IMAP và SMTP có thời gian chờ 20 giây, không còn treo khi máy chủ không trả lời. Không đặt thời gian chờ đọc lệnh vì sẽ cắt kết nối IMAP IDLE.
@@ -18,7 +18,7 @@ Chép `config.toml.example` thành `config.toml` ở thư mục chạy. Tệp ch
 
 | Khóa | Mặc định | Ý nghĩa |
 |---|---|---|
-| `[server] language` | `"vi"` | Ngôn ngữ mặc định, `"vi"` hoặc `"en"`. |
+| `[server] language` | `"vi"` | Ngôn ngữ mặc định, `"vi"`, `"en"` hoặc `"zh"` (tiếng Trung giản thể). |
 | `[server] idle_exit_seconds` | `0` | Số giây không có yêu cầu hay kết nối SSE nào thì tiến trình tự thoát. `0` là tắt. |
 
 Với máy chủ thư của Mini Panel (Dovecot xác thực bằng địa chỉ đầy đủ), `[auth] allow_full_email_username = true`.

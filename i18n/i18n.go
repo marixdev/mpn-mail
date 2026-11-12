@@ -21,6 +21,7 @@ const Default = "vi"
 var catalogs = map[string]map[string]string{
 	"vi": viMessages,
 	"en": enMessages,
+	"zh": zhMessages,
 }
 
 // Lang is one offered locale, for the language switcher.
@@ -33,6 +34,7 @@ type Lang struct {
 var Langs = []Lang{
 	{"vi", "Tiếng Việt"},
 	{"en", "English"},
+	{"zh", "简体中文"},
 }
 
 // Supported reports whether code is a locale the app ships.

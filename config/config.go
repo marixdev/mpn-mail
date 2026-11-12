@@ -21,7 +21,7 @@ type ServerConfig struct {
 	// reverse proxy). Defaults to false so plain-HTTP local dev works out of the
 	// box; set to true in any internet-facing deployment.
 	SecureCookies bool `toml:"secure_cookies"`
-	// Language is the default UI locale ("vi" or "en"). A per-request "lang"
+	// Language is the default UI locale ("vi", "en" or "zh"). A per-request "lang"
 	// cookie set by the in-app language switcher overrides it. Defaults to "vi".
 	// An unknown value falls back to the default at request time.
 	Language string `toml:"language"`

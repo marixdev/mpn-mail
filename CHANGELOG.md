@@ -7,6 +7,20 @@ Versioning: [Semantic Versioning](https://semver.org/)
 
 ---
 
+## mpn-mail
+
+Các bản của mpn-mail đánh số riêng, bắt đầu từ 1.0.0. Phần sau mục này là lịch sử của LilMail gốc.
+
+### [1.0.1] - 2026-11-12
+
+- Thêm giao diện tiếng Trung giản thể (`zh`), cạnh tiếng Việt và tiếng Anh. Ngôn ngữ lấy theo cookie `lang` mà panel đặt, theo `Accept-Language` của trình duyệt, hoặc theo `[server] language = "zh"`.
+
+### [1.0.0] - 2026-11-12
+
+Bản đầu tiên, tùy biến từ LilMail 1.14.0: giao diện tiếng Việt và tiếng Anh, logo và màu của Mini Panel, chạy dưới tiền tố đường dẫn như `/webmail`, tự thoát khi rảnh với systemd socket activation, đăng nhập SMTP bằng cả địa chỉ email, thời gian chờ khi kết nối IMAP/SMTP.
+
+---
+
 ## [Unreleased]
 
 No unreleased changes.
