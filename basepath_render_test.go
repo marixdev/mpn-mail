@@ -61,7 +61,7 @@ func render(t *testing.T, app *fiber.App, page, prefix string) string {
 
 // the pages that can be drawn without a mail server
 // ("~" stands for "/" in the name of a template). The two partials are the ones htmx loads while the page is in use.
-var pagesToCheck = []string{"login", "error", "inbox", "settings", "calendar", "calendar-week", "partials~email-list", "partials~email-viewer"}
+var pagesToCheck = []string{"login", "error", "inbox", "calendar", "calendar-week", "partials~email-list", "partials~email-viewer"}
 
 var (
 	attrRe  = regexp.MustCompile(`\s(?:href|src|action|hx-get|hx-post|hx-put|hx-patch|hx-delete)="(/[^"]*)"`)

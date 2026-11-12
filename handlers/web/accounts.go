@@ -11,7 +11,6 @@
 //	POST /api/accounts              → add an account (validate IMAP, store encrypted)
 //	DELETE /api/accounts/:email     → remove an account
 //	POST /api/accounts/:email/switch → switch active session to this account
-//	GET  /settings                  → settings page (accounts panel + push enable)
 package web
 
 import (
@@ -312,46 +311,4 @@ func (h *AccountsHandler) HandleSwitchAccount(c *fiber.Ctx) error {
 	}
 
 	return c.Redirect(basepath.Path(c, "/inbox"))
-}
-
-// HandleSettings renders the settings page with the accounts panel.
-func (h *AccountsHandler) HandleSettings(c *fiber.Ctx) error {
-	owner, _ := c.Locals("username").(string)
-	email, _ := c.Locals("email").(string)
-
-	// Load additional accounts for display.
-	entries, err := h.acctStore.List(owner)
-	if err != nil {
-		log.Printf("settings: list accounts for %s: %v", owner, err)
-		entries = nil
-	}
-	// Strip passwords.
-	type safeEntry struct {
-		Email      string `json:"email"`
-		Label      string
-		Color      string
-		IMAPServer string
-	}
-	safe := make([]safeEntry, 0, len(entries))
-	for _, e := range entries {
-		safe = append(safe, safeEntry{
-			Email:      e.Email,
-			Label:      e.Label,
-			Color:      e.Color,
-			IMAPServer: e.IMAPServer,
-		})
-	}
-
-	// Load token from session.
-	sess, _ := h.store.Get(c)
-	token, _ := sess.Get("token").(string)
-
-	return c.Render("settings", fiber.Map{
-		"Title":           "Settings",
-		"Username":        owner,
-		"Email":           email,
-		"Token":           token,
-		"Accounts":        safe,
-		"AccountsEnabled": h.config.Accounts.Enabled,
-	})
 }

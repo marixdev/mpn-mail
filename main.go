@@ -57,15 +57,10 @@ func titleCase(s string) string {
 	return b.String()
 }
 
-// uiLang resolves the UI locale for a request: a valid "lang" cookie (set by the
-// in-app switcher) wins, otherwise the configured default, clamped to a locale
-// the app actually ships.
+// uiLang resolves the UI locale for a request: the panel's language cookie, then the "lang" cookie, then the browser's
+// preference, then the configured default, always clamped to a locale the app ships.
 func uiLang(c *fiber.Ctx, cfg *config.Config) string {
-	lang := c.Cookies("lang")
-	if !i18n.Supported(lang) {
-		lang = cfg.Server.Language
-	}
-	return i18n.Resolve(lang)
+	return i18n.Pick(c.Cookies("mpn_language"), c.Cookies("lang"), c.Get("Accept-Language"), cfg.Server.Language)
 }
 
 // linkifyRe matches, in a single left-to-right pass, bare http(s) URLs, www.
@@ -541,27 +536,6 @@ func main() {
 		protected.Delete("/api/accounts/:email", acctHandler.HandleDeleteAccount)
 		protected.Post("/api/accounts/:email/switch", acctHandler.HandleSwitchAccount)
 	}
-	// Settings page — always registered so users can reach it even without extras.
-	// When accounts.enabled = false the settings page shows a placeholder panel.
-	if acctHandler != nil {
-		protected.Get("/settings", acctHandler.HandleSettings)
-	} else {
-		// Minimal settings handler when accounts are disabled.
-		protected.Get("/settings", func(c *fiber.Ctx) error {
-			username, _ := c.Locals("username").(string)
-			email, _ := c.Locals("email").(string)
-			sess, _ := store.Get(c)
-			token, _ := sess.Get("token").(string)
-			return c.Render("settings", fiber.Map{
-				"Title":           "Settings",
-				"Username":        username,
-				"Email":           email,
-				"Token":           token,
-				"AccountsEnabled": false,
-			})
-		})
-	}
-
 	// Calendar routes — registered only when CalDAV is enabled.
 	if config.CalDAV.Enabled {
 		protected.Get("/calendar", webCalendarHandler.HandleCalendarMonth)
