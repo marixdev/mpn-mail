@@ -14,6 +14,8 @@ Các bản của mpn-mail đánh số riêng, bắt đầu từ 1.0.0. Phần sa
 ### [1.0.1] - 2026-11-12
 
 - Thêm giao diện tiếng Trung giản thể (`zh`), cạnh tiếng Việt và tiếng Anh. Ngôn ngữ lấy theo cookie `lang` mà panel đặt, theo `Accept-Language` của trình duyệt, hoặc theo `[server] language = "zh"`.
+- Tệp phát hành mang tên `mpn-mail_<phiên bản>_<hệ điều hành>_<kiến trúc>.zip` và `mpn-mail_<phiên bản>_source.zip` thay cho tên `lilmail_*` cũ; `mpn-mail -version` in `mpn-mail`; `scripts/verify.sh` mặc định kiểm repo marixdev/mpn-mail.
+- README có thêm bản tiếng Anh (README.en.md) và tiếng Trung (README.zh.md).
 
 ### [1.0.0] - 2026-11-12
 

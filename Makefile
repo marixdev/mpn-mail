@@ -1,8 +1,8 @@
 .PHONY: build test vet fmt-check notices screenshots demo-screenshots site-docs site-docs-check site-render verify-selftest check clean
 
-# Build the lilmail binary
+# Build the mpn-mail binary
 build:
-	go build -o lilmail .
+	go build -o mpn-mail .
 
 # Regenerate THIRD-PARTY-NOTICES.txt from the real dependency graph (Go modules
 # + vendored browser assets). The file is embedded in the binary and served at
@@ -78,4 +78,4 @@ site-docs:
 	go run ./site/gen
 
 clean:
-	rm -f lilmail
+	rm -f mpn-mail

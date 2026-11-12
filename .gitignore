@@ -42,3 +42,4 @@ config.toml
 # Root devDependency-only npm project (typecheck/lint for assets/js + sw.js).
 # scripts/ has its own node_modules covered by scripts/.gitignore.
 /node_modules/
+/mpn-mail

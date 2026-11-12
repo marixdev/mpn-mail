@@ -1,5 +1,7 @@
 # mpn-mail
 
+**Tiếng Việt** · [English](README.en.md) · [简体中文](README.zh.md)
+
 Web mail nhẹ cho [Mini Panel](https://github.com/marixdev/mini-panel) (`mpn`). Một tệp Go chạy tĩnh, không cần cơ sở dữ liệu ngoài, đọc và gửi thư qua IMAP/SMTP của chính máy chủ.
 
 Đây là bản tùy biến từ [lilmail](https://github.com/vul-os/lilmail) v1.14.0 của vul-os, giữ nguyên giấy phép gốc (xem bên dưới). Mã nguồn lilmail vẫn nằm trong lịch sử git của repo này.
@@ -45,6 +47,10 @@ User=mpn-mail
 ```
 
 Tiến trình nhận socket qua biến `LISTEN_FDS` (fd 3). Không có biến này nó tự mở cổng `[server] port`. Yêu cầu `/health` không tính là hoạt động, nên kiểm tra sống chết không giữ tiến trình dậy.
+
+## Bản phát hành
+
+Đẩy tag `v*` sẽ chạy [release.yml](.github/workflows/release.yml). Bản phát hành gồm `mpn-mail_linux_amd64` (tệp chạy mà Mini Panel cài, build bằng `-trimpath`), các gói `mpn-mail_<phiên bản>_<hệ điều hành>_<kiến trúc>.zip`, gói mã nguồn và `SHA256SUMS`. Kiểm tra tệp tải về bằng `scripts/verify.sh --tag vX.Y.Z <tệp>`.
 
 ## Build
 
