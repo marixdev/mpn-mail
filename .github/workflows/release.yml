@@ -80,6 +80,10 @@ jobs:
         cd release && zip -r "lilmail_${VERSION}_darwin_arm64.zip" lilmail/ && cd ..
         rm release/lilmail/lilmail
 
+        # The bare binary Mini Panel installs. -trimpath and CGO off make it reproducible; the panel pins the
+        # SHA-256 this job writes into SHA256SUMS.
+        CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -trimpath -ldflags "${LDFLAGS}" -o release/mpn-mail_linux_amd64 .
+
         # Source archive
         git archive --format=zip HEAD -o "release/lilmail_${VERSION}_source.zip"
 
