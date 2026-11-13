@@ -57,10 +57,12 @@ jobs:
         LDFLAGS="-s -w -X main.Version=${VERSION}"   # strip symbols/DWARF — smaller binary
         mkdir -p release
 
-        # The only file published: the binary Mini Panel installs (linux/amd64). -trimpath and CGO off make it
+        # The files published: the binaries Mini Panel installs (linux/amd64 and linux/arm64). -trimpath and CGO off make them
         # reproducible; the panel pins the SHA-256 this job writes into SHA256SUMS. release/ stays FLAT, because the
         # manifest step lists it with `find -maxdepth 1 -type f`.
-        CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -trimpath -ldflags "${LDFLAGS}" -o release/mpn-mail_linux_amd64 .
+        for arch in amd64 arm64; do
+          CGO_ENABLED=0 GOOS=linux GOARCH="${arch}" go build -trimpath -ldflags "${LDFLAGS}" -o "release/mpn-mail_linux_${arch}" .
+        done
 
         # Exported so the release body can name an asset exactly. Assets are
         # versioned WITHOUT the leading 'v', so a body interpolating
@@ -155,7 +157,7 @@ jobs:
 
           ```sh
           curl -fsSLO https://raw.githubusercontent.com/${{ github.repository }}/${{ github.ref_name }}/scripts/verify.sh
-          bash verify.sh --tag ${{ github.ref_name }} --attest mpn-mail_linux_amd64
+          bash verify.sh --tag ${{ github.ref_name }} --attest mpn-mail_linux_amd64   # or mpn-mail_linux_arm64
           ```
 
           `verify.sh` fetches `SHA256SUMS`, looks up the exact entry for the

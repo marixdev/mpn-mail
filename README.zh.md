@@ -50,7 +50,7 @@ User=mpn-mail
 
 ## 发布
 
-推送 `v*` 标签会运行 [release.yml](.github/workflows/release.yml)，只发布 `mpn-mail_linux_amd64`（Mini Panel 安装的二进制，使用 `-trimpath` 构建）和 `SHA256SUMS`。标签的源代码压缩包由 GitHub 自动附带。可用 `scripts/verify.sh --tag vX.Y.Z <文件>` 校验下载的文件。
+推送 `v*` 标签会运行 [release.yml](.github/workflows/release.yml)，只发布 `mpn-mail_linux_amd64`、`mpn-mail_linux_arm64`（Mini Panel 安装的二进制，使用 `-trimpath` 构建）和 `SHA256SUMS`。标签的源代码压缩包由 GitHub 自动附带。可用 `scripts/verify.sh --tag vX.Y.Z <文件>` 校验下载的文件。
 
 ## 构建
 

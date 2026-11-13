@@ -12,6 +12,10 @@ Versioning: [Semantic Versioning](https://semver.org/)
 
 Các bản của mpn-mail đánh số riêng, bắt đầu từ 1.0.0. Phần sau mục này là lịch sử của LilMail gốc.
 
+### [1.0.2] - 2026-11-13
+
+- Bản phát hành có thêm mpn-mail_linux_arm64 cho máy ARM, cạnh mpn-mail_linux_amd64. Mã không đổi.
+
 ### [1.0.1] - 2026-11-12
 
 - Thêm giao diện tiếng Trung giản thể (`zh`), cạnh tiếng Việt và tiếng Anh. Ngôn ngữ lấy theo cookie `lang` mà panel đặt, theo `Accept-Language` của trình duyệt, hoặc theo `[server] language = "zh"`.

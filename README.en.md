@@ -50,7 +50,7 @@ The process receives the socket through `LISTEN_FDS` (fd 3). Without it, it open
 
 ## Releases
 
-Pushing a `v*` tag runs [release.yml](.github/workflows/release.yml). It publishes only `mpn-mail_linux_amd64` (the binary Mini Panel installs, built with `-trimpath`) and `SHA256SUMS`. GitHub adds the tag's source archives itself. Check a download with `scripts/verify.sh --tag vX.Y.Z <file>`.
+Pushing a `v*` tag runs [release.yml](.github/workflows/release.yml). It publishes only `mpn-mail_linux_amd64` and `mpn-mail_linux_arm64` (the binaries Mini Panel installs, built with `-trimpath`) and `SHA256SUMS`. GitHub adds the tag's source archives itself. Check a download with `scripts/verify.sh --tag vX.Y.Z <file>`.
 
 ## Build
 
